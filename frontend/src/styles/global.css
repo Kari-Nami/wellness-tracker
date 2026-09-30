@@ -1,0 +1,33 @@
+@import 'tailwindcss';
+:root {
+  font-family: system-ui, sans-serif;
+  color: #18352b;
+  background: #f8faf9;
+}
+body {
+  margin: 0;
+}
+main {
+  max-width: 48rem;
+  margin: 4rem auto;
+  padding: 1.5rem;
+}
+h1 {
+  font-size: 2rem;
+  margin: 1rem 0;
+}
+p {
+  margin: 1rem 0;
+}
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+a {
+  text-decoration: underline;
+}
+:focus-visible {
+  outline: 2px solid #23694b;
+  outline-offset: 4px;
+}

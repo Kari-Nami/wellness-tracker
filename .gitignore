@@ -1,0 +1,15 @@
+.DS_Store
+node_modules/
+dist/
+.next/
+coverage/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+!.env.production.example
+!.env.test.example
+*.log
+.instructions/
+__pycache__/
+*.pyc
