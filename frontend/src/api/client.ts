@@ -27,7 +27,11 @@ export async function request<T>(
     headers.set('Content-Type', 'application/json');
   let response: Response;
   try {
-    response = await fetch(`${apiBaseUrl}${path}`, {
+    const transport =
+      import.meta.env.VITE_API_MODE === 'mock'
+        ? (await import('../mocks/server')).mockFetch
+        : fetch;
+    response = await transport(`${apiBaseUrl}${path}`, {
       ...options,
       headers,
       credentials: 'include',

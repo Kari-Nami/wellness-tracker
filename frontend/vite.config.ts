@@ -8,6 +8,11 @@ export default defineConfig(({ mode }) => {
   return {
     base: `${basePath}/`,
     plugins: [react(), tailwindcss()],
+    define: {
+      'import.meta.env.VITE_API_MODE': JSON.stringify(
+        env.VITE_API_MODE ?? (mode === 'demo' ? 'mock' : 'real'),
+      ),
+    },
     server: {
       port: 5173,
       strictPort: true,
