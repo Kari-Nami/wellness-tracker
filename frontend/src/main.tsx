@@ -6,11 +6,14 @@ import { appBasePath } from './config/app';
 import { queryClient } from './app/queryClient';
 import { AppRoutes } from './routes/AppRoutes';
 import './styles/global.css';
+import { AuthProvider } from './features/auth/AuthProvider';
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter basename={appBasePath || '/'}>
-        <AppRoutes />
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
   </StrictMode>,
