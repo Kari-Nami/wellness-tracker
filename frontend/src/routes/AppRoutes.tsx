@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router-dom';
 import { ScaffoldPage } from '../pages/ScaffoldPage';
 import { AuthPage } from '../features/auth/AuthPage';
 import { ProtectedRoute, HomeRoute } from '../features/auth/RouteGuards';
+import { CheckInPage } from '../features/checkIn/CheckInPage';
 import { AppShell } from '../components/layout/AppShell';
 export function AppRoutes() {
   return (
@@ -11,15 +12,14 @@ export function AppRoutes() {
       <Route path="/register" element={<AuthPage mode="register" />} />
       <Route element={<ProtectedRoute role="user" />}>
         <Route element={<AppShell />}>
-          {['today', 'calendar', 'insights', 'leaderboard', 'profile'].map(
-            (route) => (
-              <Route
-                key={route}
-                path={`/${route}`}
-                element={<ScaffoldPage title={route} />}
-              />
-            ),
-          )}
+          <Route path="/today" element={<CheckInPage />} />
+          {['calendar', 'insights', 'leaderboard', 'profile'].map((route) => (
+            <Route
+              key={route}
+              path={`/${route}`}
+              element={<ScaffoldPage title={route} />}
+            />
+          ))}
         </Route>
       </Route>
       <Route element={<ProtectedRoute role="admin" />}>
