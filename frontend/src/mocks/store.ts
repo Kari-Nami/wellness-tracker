@@ -1,13 +1,31 @@
+import { z } from 'zod';
+import {
+  userDtoSchema,
+  checkInDtoSchema,
+  habitDtoSchema,
+  pointRuleDtoSchema,
+} from '../types/contracts';
 import { createDemoDatabase, type DemoDatabase } from './data';
 import { reconcile } from './calculations';
 const key = 'daywell-demo-data-v1';
 const sessionKey = 'daywell-demo-session';
+const databaseSchema = z.object({
+  accounts: z.array(
+    z.object({ user: userDtoSchema, passwordHash: z.string().length(64) }),
+  ),
+  records: z.record(z.string(), z.record(z.string(), checkInDtoSchema)),
+  habits: z.record(z.string(), z.array(habitDtoSchema)),
+  rules: z.array(pointRuleDtoSchema),
+});
 let memory: DemoDatabase | undefined;
 export function getDatabase() {
   if (!memory) {
     try {
       const saved = localStorage.getItem(key);
-      if (saved) memory = JSON.parse(saved) as DemoDatabase;
+      if (saved) {
+        const result = databaseSchema.safeParse(JSON.parse(saved));
+        if (result.success) memory = result.data;
+      }
     } catch {
       /* Storage may be unavailable in private browsing. */
     }

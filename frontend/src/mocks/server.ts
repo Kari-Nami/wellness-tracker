@@ -218,7 +218,7 @@ async function dispatch(
           createdAt: now,
           updatedAt: now,
         }
-      : recordFor(user, localDate);
+      : structuredClone(recordFor(user, localDate));
     if (input) {
       const { habitCompletions, ...fields } = input;
       Object.assign(record, fields, { updatedAt: now });
