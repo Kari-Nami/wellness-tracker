@@ -36,6 +36,7 @@ export function ConfirmDialog({
       <div className="modal-actions">
         <Button
           variant="secondary"
+          data-dialog-cancel
           disabled={pending}
           onClick={() => onOpenChange(false)}
         >

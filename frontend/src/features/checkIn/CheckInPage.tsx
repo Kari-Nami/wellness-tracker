@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { CalendarDays, ArrowLeft } from 'lucide-react';
@@ -12,16 +13,39 @@ import { shiftDate, formatDay } from '../../lib/dates';
 import { localDateSchema } from '../../types/contracts';
 import { PageHeading } from '../../components/ui/PageHeading';
 import { ErrorState, LoadingState } from '../../components/ui/States';
+import { useUnsaved } from '../../app/unsaved';
+import { Button } from '../../components/ui/Button';
 import { CheckInEditor } from './CheckInEditor';
 export function CheckInPage({ localDate }: { localDate?: string }) {
   const { user } = useAuth();
   const today = useToday(user!.timezone);
-  const date = localDate ?? today;
+  const [workingDate, setWorkingDate] = useState(today);
+  const unsaved = useUnsaved();
+  const date = localDate ?? workingDate;
   if (!localDateSchema.safeParse(date).success || date > today)
     return (
       <ErrorState error={new Error('Choose a valid date today or earlier.')} />
     );
-  return <DateRecord key={date} date={date} today={today} />;
+  return (
+    <>
+      {!localDate && date !== today && (
+        <div className="form-success day-rollover" role="status">
+          <p>
+            A new day has started. Finish saving this day before opening today's
+            check-in.
+          </p>
+          <Button
+            variant="secondary"
+            disabled={unsaved.dirty || unsaved.busy}
+            onClick={() => setWorkingDate(today)}
+          >
+            Open today's check-in
+          </Button>
+        </div>
+      )}
+      <DateRecord key={date} date={date} today={today} />
+    </>
+  );
 }
 function DateRecord({ date, today }: { date: string; today: string }) {
   const { user } = useAuth();

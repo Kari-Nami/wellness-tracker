@@ -33,14 +33,14 @@ export function TrendChart({
           <XAxis
             dataKey="localDate"
             tickFormatter={(date: string) => formatDay(date, 'MMM d')}
-            tick={{ fontSize: 9, fill: '#93a08a' }}
+            tick={{ fontSize: 9, fill: '#68775f' }}
             axisLine={false}
             tickLine={false}
             minTickGap={35}
           />
           <YAxis
             domain={domain}
-            tick={{ fontSize: 9, fill: '#93a08a' }}
+            tick={{ fontSize: 9, fill: '#68775f' }}
             tickFormatter={(value: number) => String(Number(value.toFixed(1)))}
             axisLine={false}
             tickLine={false}

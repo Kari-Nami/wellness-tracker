@@ -10,6 +10,7 @@ import { AuthPage } from '../features/auth/AuthPage';
 import { ProtectedRoute, HomeRoute } from '../features/auth/RouteGuards';
 import { AppShell } from '../components/layout/AppShell';
 import { LoadingState } from '../components/ui/States';
+import { RecoveryPage } from '../pages/RecoveryPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 import { RouteEffects } from '../app/RouteEffects';
 import { appBasePath } from '../config/app';
@@ -48,7 +49,7 @@ const AdminPage = lazy(() =>
 );
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route element={<RouteFrame />} errorElement={<NotFoundPage />}>
+    <Route element={<RouteFrame />} errorElement={<RecoveryPage />}>
       <Route path="/" element={<HomeRoute />} />
       <Route path="/login" element={<AuthPage key="login" mode="login" />} />
       <Route

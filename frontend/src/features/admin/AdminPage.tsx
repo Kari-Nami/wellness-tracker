@@ -92,7 +92,7 @@ export function AdminPage() {
     <>
       <PageHeading
         eyebrow="ADMINISTRATION"
-        title="A little recognition, thoughtfully set."
+        title="Recognize daily consistency."
         description="Manage global point values for supported tracking activities."
         action={
           <Button
@@ -146,11 +146,11 @@ export function AdminPage() {
               Enabled
             </span>
             <span>
-              <strong>{available.length}</strong>Available triggers
+              <strong>{available.length}</strong>Available activities
             </span>
             <span className="badge badge-neutral">
               <SlidersHorizontal size={13} />
-              Controlled trigger registry
+              Supported daily activities
             </span>
           </div>
           <section className="panel rules-panel">
@@ -158,7 +158,7 @@ export function AdminPage() {
               <div>
                 <h2>Point rules</h2>
                 <p className="panel-subtitle">
-                  One rule per supported trigger. Values range from 0 to 100.
+                  One rule per activity. Awards range from 0 to 100 points.
                 </p>
               </div>
             </div>
@@ -183,7 +183,6 @@ export function AdminPage() {
                             {trigger?.description ??
                               'Supported tracking activity.'}
                           </p>
-                          <code>{rule.triggerKey}</code>
                         </div>
                         <span className="rule-points">
                           <strong>{rule.points}</strong>
@@ -241,7 +240,7 @@ export function AdminPage() {
             ) : (
               <EmptyState
                 title="Choose what to recognize"
-                description="Create a rule from the supported triggers to begin rewarding consistent tracking."
+                description="Create a rule from the supported activities to begin rewarding consistent tracking."
                 action={
                   <Button
                     onClick={() => {
@@ -259,7 +258,7 @@ export function AdminPage() {
           {!available.length && (
             <p className="admin-registry-note">
               <Info size={13} />
-              Every supported trigger already has a rule. Edit an existing rule
+              Every supported activity already has a rule. Edit an existing rule
               to change its value.
             </p>
           )}
@@ -277,7 +276,7 @@ export function AdminPage() {
             open={open}
             onOpenChange={setOpen}
             title={editing ? 'Update point rule' : 'Recognize a daily action'}
-            description="Choose a supported activity and its point value. No formulas or custom trigger logic."
+            description="Choose a supported daily activity and set its point value."
           >
             <RuleForm
               key={editing?.id ?? 'new'}
@@ -354,6 +353,7 @@ function RuleForm({
       onSubmit={form.handleSubmit(submit)}
       noValidate
     >
+      {rule && <input type="hidden" {...form.register('triggerKey')} />}
       <Field
         id="rule-trigger"
         label="Supported activity"
@@ -362,7 +362,8 @@ function RuleForm({
         <select
           className="input"
           id="rule-trigger"
-          {...form.register('triggerKey')}
+          {...(rule ? {} : form.register('triggerKey'))}
+          value={rule ? rule.triggerKey : undefined}
           disabled={!!rule}
           aria-describedby="rule-trigger-help"
         >

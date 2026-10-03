@@ -192,7 +192,7 @@ export function InsightsPage() {
                 title: 'Sleep, day by day',
                 description: 'Hours of rest across your selected days.',
                 field: 'sleepMinutes' as const,
-                color: '#8aa270',
+                color: '#7a915f',
                 label: 'Sleep',
                 unit: 'hours',
                 map: (v: number) => v / 60,
@@ -203,7 +203,7 @@ export function InsightsPage() {
                 title: 'Your hydration rhythm',
                 description: 'Small sips add up.',
                 field: 'waterMl' as const,
-                color: '#7eaaa7',
+                color: '#5d908c',
                 label: 'Water',
                 unit: 'liters',
                 map: (v: number) => v / 1000,
@@ -214,7 +214,7 @@ export function InsightsPage() {
                 title: 'A little mood perspective',
                 description: 'Your mood on a five-point scale.',
                 field: 'mood' as const,
-                color: '#ba9394',
+                color: '#a7767c',
                 label: 'Mood',
                 unit: '1 to 5',
                 map: (v: number) => v,
@@ -228,7 +228,7 @@ export function InsightsPage() {
                 title: 'Consistency, recognized',
                 description: 'Points earned for your daily activity.',
                 field: 'pointsEarned' as const,
-                color: '#b59b6d',
+                color: '#9b814d',
                 label: 'Points',
                 unit: 'points',
                 map: (v: number) => v,
@@ -258,7 +258,10 @@ export function InsightsPage() {
                   domain={chart.field === 'mood' ? [1, 5] : undefined}
                 />
                 <p className="chart-summary">
-                  {chart.text} Gaps mean not logged.
+                  {chart.text}{' '}
+                  {chart.field === 'pointsEarned'
+                    ? 'Zero means no points earned for that day.'
+                    : 'Gaps mean not logged.'}
                 </p>
               </section>
             ))}

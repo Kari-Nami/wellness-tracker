@@ -33,7 +33,7 @@ import {
   type CheckInPatch,
   type UserDto,
 } from '../../types/contracts';
-import { todayInZone, formatDay } from '../../lib/dates';
+import { todayInZone } from '../../lib/dates';
 import { titleCase, waterLabel, sleepLabel } from '../../lib/format';
 import {
   emptyCheckIn,
@@ -95,6 +95,15 @@ const awardLabels: Record<string, string> = {
   CHECKIN_STREAK_7: '7-day streak',
   CHECKIN_STREAK_30: '30-day streak',
 };
+function validationMessage(path: PropertyKey[]) {
+  if (path[0] === 'waterMl')
+    return 'Water intake must be a whole number from 0 to 10,000 ml.';
+  if (path[0] === 'sleep')
+    return 'Sleep duration must be between 0 and 24 hours.';
+  if (path[0] === 'meals' && path[1] === 'snacks')
+    return 'Add a short description for each snack, or remove the empty snack.';
+  return 'Please check your entries before saving.';
+}
 export function CheckInEditor({
   localDate,
   record,
@@ -157,10 +166,7 @@ export function CheckInEditor({
     setError('');
     const parsed = checkInPatchSchema.safeParse(draft);
     if (!parsed.success) {
-      setError(
-        parsed.error.issues[0]?.message ??
-          'Please check the fields before saving.',
-      );
+      setError(validationMessage(parsed.error.issues[0]?.path ?? []));
       return;
     }
     setPending(true);
@@ -389,7 +395,11 @@ export function CheckInEditor({
               <SectionTitle
                 icon={Heart}
                 title="Mood"
-                note="How are you feeling today?"
+                note={
+                  user.goals.targetMood === null
+                    ? 'How are you feeling today?'
+                    : `Your target: ${moodOptions.find((m) => m.value === user.goals.targetMood)?.label}`
+                }
               />
               <div className="mood-selector" role="group" aria-label="Mood">
                 {moodOptions.map(({ value, label }) => {
@@ -416,6 +426,7 @@ export function CheckInEditor({
                 icon={Utensils}
                 title="Meals"
                 note="A simple record of what fueled your day."
+                value={`${[draft.meals.breakfast, draft.meals.lunch, draft.meals.dinner].filter((m) => m.status === 'eaten').length + draft.meals.snacks.filter((s) => s.description.trim()).length}${user.goals.mealsPerDay > 0 ? ` / ${user.goals.mealsPerDay}` : ''} eaten`}
               />
               <div className="meal-list">
                 {(['breakfast', 'lunch', 'dinner'] as const).map((key) => {
@@ -423,9 +434,7 @@ export function CheckInEditor({
                   return (
                     <div className="meal-item" key={key}>
                       <div className="meal-item-header">
-                        <label htmlFor={`meal-${key}`} className="meal-label">
-                          {titleCase(key)}
-                        </label>
+                        <span className="meal-label">{titleCase(key)}</span>
                         <div
                           className="meal-controls"
                           role="group"
@@ -554,7 +563,11 @@ export function CheckInEditor({
               <SectionTitle
                 icon={Activity}
                 title="Bowel movement"
-                note="A quick daily check."
+                note={
+                  user.goals.targetBowelStatus === null
+                    ? 'A quick daily check.'
+                    : `Your target: ${titleCase(user.goals.targetBowelStatus)}`
+                }
               />
               <Segmented
                 label="Bowel status"
@@ -584,7 +597,7 @@ export function CheckInEditor({
                       : saved
                         ? 'Your check-in is saved.'
                         : record
-                          ? `Last saved ${formatDay(localDate, 'MMM d')}`
+                          ? `Last saved ${new Intl.DateTimeFormat('en', { timeZone: user.timezone, month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date(record.updatedAt))}`
                           : 'Save whenever you are ready.'}
                 </p>
               )}
@@ -698,7 +711,15 @@ export function CheckInEditor({
                 </div>
                 {record.pointAwards.map((award) => (
                   <div className="point-row" key={award.instanceKey}>
-                    <span>{awardLabels[award.triggerKey]}</span>
+                    <span>
+                      {award.triggerKey === 'HABIT_COMPLETE'
+                        ? (record.habitCompletions.find(
+                            (h) =>
+                              award.instanceKey ===
+                              `HABIT_COMPLETE:${h.habitId}`,
+                          )?.habitNameSnapshot ?? 'Daily habit')
+                        : awardLabels[award.triggerKey]}
+                    </span>
                     <strong>+{award.points}</strong>
                   </div>
                 ))}
