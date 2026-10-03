@@ -11,6 +11,7 @@ import {
   Globe,
   Mail,
 } from 'lucide-react';
+import { useUnsaved, useUnsavedChanges } from '../../app/unsaved';
 import { usersApi } from '../../api/users';
 import { queryKeys } from '../../api/queryKeys';
 import { useAuth } from '../auth/context';
@@ -25,6 +26,7 @@ import {
 } from '../../types/contracts';
 import { initials, titleCase } from '../../lib/format';
 import { PageHeading } from '../../components/ui/PageHeading';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { Button } from '../../components/ui/Button';
 import { Field } from '../../components/ui/Field';
 import { LoadingState, ErrorState } from '../../components/ui/States';
@@ -72,6 +74,8 @@ export function ProfilePage() {
 }
 function AccountForm({ user }: { user: UserDto }) {
   const save = useProfileSave();
+  const unsaved = useUnsaved();
+  const [confirmLogout, setConfirmLogout] = useState(false);
   const auth = useAuth();
   const [feedback, setFeedback] = useState('');
   const [error, setError] = useState('');
@@ -84,6 +88,11 @@ function AccountForm({ user }: { user: UserDto }) {
       leaderboardEnabled: user.leaderboardEnabled,
     },
   });
+  useUnsavedChanges(
+    'profile-account',
+    form.formState.isDirty,
+    form.formState.isSubmitting,
+  );
   const timezoneOptions =
     typeof Intl.supportedValuesOf === 'function'
       ? Intl.supportedValuesOf('timeZone')
@@ -222,11 +231,23 @@ function AccountForm({ user }: { user: UserDto }) {
         className="logout-button"
         variant="ghost"
         loading={logoutPending}
-        onClick={() => void logout()}
+        onClick={() => (unsaved.dirty ? setConfirmLogout(true) : void logout())}
       >
         <LogOut size={14} />
         Sign out
       </Button>
+      <ConfirmDialog
+        open={confirmLogout}
+        onOpenChange={setConfirmLogout}
+        title="Sign out without saving?"
+        description="Your unsaved profile changes will be discarded when you sign out."
+        label="Sign out"
+        pending={logoutPending || unsaved.busy}
+        onConfirm={() => {
+          setConfirmLogout(false);
+          void logout();
+        }}
+      />
     </section>
   );
 }
@@ -238,6 +259,11 @@ function GoalsForm({ user }: { user: UserDto }) {
     resolver: zodResolver(goalsSchema),
     defaultValues: user.goals,
   });
+  useUnsavedChanges(
+    'profile-goals',
+    form.formState.isDirty,
+    form.formState.isSubmitting,
+  );
   const errors = form.formState.errors;
   async function submit(goals: Goals) {
     setError('');

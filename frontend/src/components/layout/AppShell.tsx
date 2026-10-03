@@ -1,5 +1,11 @@
-import { useState } from 'react';
-import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect, Suspense } from 'react';
+import {
+  NavLink,
+  Outlet,
+  Link,
+  useNavigate,
+  useBlocker,
+} from 'react-router-dom';
 import * as Dropdown from '@radix-ui/react-dropdown-menu';
 import {
   Sun,
@@ -12,6 +18,9 @@ import {
   SlidersHorizontal,
   Leaf,
 } from 'lucide-react';
+import { useUnsaved } from '../../app/unsaved';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
+import { LoadingState } from '../ui/States';
 import { Brand } from '../ui/Brand';
 import { useAuth } from '../../features/auth/context';
 import { initials } from '../../lib/format';
@@ -25,6 +34,20 @@ const navigation = [
 ];
 export function AppShell() {
   const auth = useAuth();
+  const unsaved = useUnsaved();
+  const [confirmLogout, setConfirmLogout] = useState(false);
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      unsaved.dirty &&
+      currentLocation.pathname +
+        currentLocation.search +
+        currentLocation.hash !==
+        nextLocation.pathname + nextLocation.search + nextLocation.hash,
+  );
+  useEffect(() => {
+    if (blocker.state === 'blocked' && !unsaved.dirty && !unsaved.busy)
+      blocker.proceed();
+  }, [blocker, unsaved.dirty, unsaved.busy]);
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const [pending, setPending] = useState(false);
@@ -99,7 +122,9 @@ export function AppShell() {
                 )}
                 <Dropdown.Item
                   disabled={pending}
-                  onSelect={() => void logout()}
+                  onSelect={() =>
+                    unsaved.dirty ? setConfirmLogout(true) : void logout()
+                  }
                 >
                   <LogOut size={15} />
                   {pending ? 'Signing out...' : 'Sign out'}
@@ -120,7 +145,9 @@ export function AppShell() {
             {error}
           </p>
         )}
-        <Outlet />
+        <Suspense fallback={<LoadingState />}>
+          <Outlet />
+        </Suspense>
       </main>
       <footer className="app-footer">
         <span>
@@ -128,6 +155,31 @@ export function AppShell() {
         </span>
         <span>Your wellness. Your pace.</span>
       </footer>
+      <ConfirmDialog
+        open={blocker.state === 'blocked'}
+        onOpenChange={(open) => {
+          if (!open && blocker.state === 'blocked') blocker.reset();
+        }}
+        title="Leave without saving?"
+        description="Your changes have not been saved. Stay here to save them, or discard your changes and continue."
+        label="Discard changes"
+        pending={unsaved.busy}
+        onConfirm={() => {
+          if (blocker.state === 'blocked') blocker.proceed();
+        }}
+      />
+      <ConfirmDialog
+        open={confirmLogout}
+        onOpenChange={setConfirmLogout}
+        title="Sign out without saving?"
+        description="Your unsaved changes will be discarded when you sign out."
+        label="Sign out"
+        pending={pending || unsaved.busy}
+        onConfirm={() => {
+          setConfirmLogout(false);
+          void logout();
+        }}
+      />
       {!admin && (
         <nav className="mobile-nav" aria-label="Mobile navigation">
           {navigation.map(({ path, label, icon: Icon }) => (

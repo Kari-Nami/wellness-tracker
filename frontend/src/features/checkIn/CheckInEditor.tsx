@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
@@ -22,6 +22,7 @@ import {
   Frown,
   Meh,
 } from 'lucide-react';
+import { useUnsavedChanges } from '../../app/unsaved';
 import { checkInsApi } from '../../api/checkIns';
 import { queryKeys } from '../../api/queryKeys';
 import { invalidateWellness } from '../../api/invalidation';
@@ -142,16 +143,8 @@ export function CheckInEditor({
   const completedHabits = draft.habitCompletions.filter(
     (h) => h.completed,
   ).length;
-  useEffect(() => {
-    const handler = (event: BeforeUnloadEvent) => {
-      if (dirty) {
-        event.preventDefault();
-        event.returnValue = '';
-      }
-    };
-    window.addEventListener('beforeunload', handler);
-    return () => window.removeEventListener('beforeunload', handler);
-  }, [dirty]);
+  useUnsavedChanges('check-in', dirty, pending);
+
   function update<K extends keyof Required<CheckInPatch>>(
     field: K,
     value: Required<CheckInPatch>[K],
