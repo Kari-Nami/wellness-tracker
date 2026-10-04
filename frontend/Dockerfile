@@ -4,7 +4,9 @@ COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
 ARG VITE_PUBLIC_BASE_PATH=/
+ARG VITE_API_MODE=real
 ENV VITE_PUBLIC_BASE_PATH=$VITE_PUBLIC_BASE_PATH
+ENV VITE_API_MODE=$VITE_API_MODE
 RUN npm run build
 
 FROM nginx:1.28-alpine AS runtime
