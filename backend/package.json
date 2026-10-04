@@ -15,7 +15,8 @@
     "test:watch": "vitest",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run lint && npm run typecheck && npm run test && npm run format:check"
+    "check": "npm run lint && npm run typecheck && npm run test && npm run format:check",
+    "test:integration": "tsx scripts/runIntegrationTests.mts"
   },
   "dependencies": {
     "bcryptjs": "3.0.3",

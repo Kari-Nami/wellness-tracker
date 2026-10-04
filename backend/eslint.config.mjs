@@ -10,10 +10,14 @@ export default tseslint.config(
       'src/types/contracts.ts',
     ],
   },
+  {
+    files: ['deploy/mongo/healthcheck.js'],
+    languageOptions: { globals: { rs: 'readonly', quit: 'readonly' } },
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ['**/*.{ts,tsx,mts}'],
     languageOptions: { globals: { ...globals.node, ...globals.browser } },
   },
 );

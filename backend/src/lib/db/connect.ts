@@ -10,8 +10,7 @@ export async function connectDb() {
   });
   try {
     return await state.wellnessMongo;
-  } catch (error) {
+  } finally {
     state.wellnessMongo = undefined;
-    throw error;
   }
 }

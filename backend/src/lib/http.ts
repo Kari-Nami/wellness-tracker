@@ -32,8 +32,27 @@ export function notImplemented(): never {
 }
 export async function readJson(request: Request): Promise<unknown> {
   try {
-    return await request.json();
-  } catch {
+    if (
+      !request.headers
+        .get('content-type')
+        ?.toLowerCase()
+        .startsWith('application/json')
+    )
+      throw new AppError(
+        400,
+        'VALIDATION_ERROR',
+        'Use an application/json request body.',
+      );
+    const text = await request.text();
+    if (Buffer.byteLength(text, 'utf8') > 65536)
+      throw new AppError(
+        413,
+        'PAYLOAD_TOO_LARGE',
+        'This request is too large.',
+      );
+    return JSON.parse(text) as unknown;
+  } catch (error) {
+    if (error instanceof AppError) throw error;
     throw new AppError(
       400,
       'VALIDATION_ERROR',
@@ -68,6 +87,33 @@ export async function handleRoute(
           },
         },
         { status: error.status, headers: { 'Cache-Control': 'no-store' } },
+      );
+    if (
+      error &&
+      typeof error === 'object' &&
+      'code' in error &&
+      error.code === 11000
+    )
+      return Response.json(
+        { error: { code: 'CONFLICT', message: 'This record already exists.' } },
+        { status: 409, headers: { 'Cache-Control': 'no-store' } },
+      );
+    if (
+      error instanceof Error &&
+      (/^Mongo(?:Network|ServerSelection|NotConnected|TopologyClosed|Timeout)/.test(
+        error.name,
+      ) ||
+        ('code' in error && error.code === 20))
+    )
+      return Response.json(
+        {
+          error: {
+            code: 'DEPENDENCY_UNAVAILABLE',
+            message:
+              'The database is unavailable or cannot complete this operation.',
+          },
+        },
+        { status: 503, headers: { 'Cache-Control': 'no-store' } },
       );
     // Do not log exception messages that could contain database credentials or wellness payloads.
     logger.error(

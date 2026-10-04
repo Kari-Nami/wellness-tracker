@@ -1,13 +1,15 @@
 services:
   mongo:
     image: mongo:8.2
+    entrypoint: ['/bin/sh', '/opt/wellness/start.sh']
     ports:
       - '127.0.0.1:27017:27017'
     volumes:
       - mongo_dev_data:/data/db
+      - ./deploy/mongo/start.sh:/opt/wellness/start.sh:ro
+      - ./deploy/mongo/healthcheck.js:/opt/wellness/healthcheck.js:ro
     healthcheck:
-      test:
-        ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping').ok"]
+      test: ['CMD', 'mongosh', '--quiet', '/opt/wellness/healthcheck.js']
       interval: 10s
       timeout: 5s
       retries: 10

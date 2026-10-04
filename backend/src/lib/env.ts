@@ -12,7 +12,17 @@ const envSchema = z.object({
     .default('development'),
   MONGODB_URI: z.string().regex(/^mongodb(?:\+srv)?:\/\//),
   JWT_SECRET: z.string().min(32),
-  JWT_EXPIRES_IN: z.string().default('7d'),
+  JWT_EXPIRES_IN: z
+    .string()
+    .default('7d')
+    .refine((value) => {
+      const match = /^(\d+)(s|m|h|d)$/.exec(value);
+      if (!match) return false;
+      const seconds =
+        Number(match[1]) *
+        { s: 1, m: 60, h: 3600, d: 86400 }[match[2] as 's' | 'm' | 'h' | 'd'];
+      return seconds >= 60 && seconds <= 30 * 86400;
+    }, 'Use a session duration from 1 minute to 30 days, such as 7d.'),
   APP_ORIGIN: z.url().refine((value) => {
     const url = new URL(value);
     return ['http:', 'https:'].includes(url.protocol) && url.origin === value;

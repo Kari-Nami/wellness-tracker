@@ -1,10 +1,10 @@
 # Deployment scaffold
 
-Production consists of frontend, backend, and authenticated MongoDB containers. Only frontend/backend ports are published, bound to loopback. The existing VM Nginx and Certbot provide public ingress and HTTPS. No Compose service owns ports 80 or 443 on the host.
+Production consists of frontend, backend, and authenticated MongoDB containers. MongoDB runs as a single-member `rs0` replica set so related check-in and scoring writes can commit in one transaction. Only frontend/backend ports are published, bound to loopback. The existing VM Nginx and Certbot provide public ingress and HTTPS. No Compose service owns ports 80 or 443 on the host.
 
 ## Build and start
 
-Keep frontend and backend as sibling checkouts. Copy `backend/.env.production.example` to a protected environment file outside both checkouts, set real values, and restrict permissions with `chmod 600`. The backend connection credentials must match Mongo credentials; percent-encode any URI-reserved characters. The example uses a Mongo root user for initial bootstrap. Before VM deployment, prefer a dedicated least-privilege application user; seed/operations can retain separate admin credentials.
+Keep frontend and backend as sibling checkouts. Copy `backend/.env.production.example` to a protected environment file outside both checkouts, set real values, and restrict permissions with `chmod 600`. Generate and retain `MONGO_REPLICA_KEY` with `openssl rand -base64 756`. The MongoDB service writes this protected key inside its container and initializes its replica set once; health checks require a writable primary. Keep the key stable across updates. The backend connection credentials must match Mongo credentials; percent-encode any URI-reserved characters. The example uses a Mongo root user for initial bootstrap. Before VM deployment, prefer a dedicated least-privilege application user; seed/operations can retain separate admin credentials.
 
 ```sh
 docker compose --env-file /opt/wellness-tracker/.env.production \
