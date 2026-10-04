@@ -3,7 +3,10 @@ import {
   userDtoSchema,
   habitDtoSchema,
   pointRuleDtoSchema,
+  checkInDtoSchema,
 } from '../types/contracts';
+import { completedFieldCount, completionOf } from '../services/completion';
+import type { CheckInRecord } from '../models/DailyCheckIn';
 import type { UserRecord } from '../models/User';
 import type { HabitRecord } from '../models/Habit';
 import type { PointRuleRecord } from '../models/PointRule';
@@ -47,5 +50,54 @@ export function toPointRuleDto(
     enabled: rule.enabled,
     createdAt: rule.createdAt.toISOString(),
     updatedAt: rule.updatedAt.toISOString(),
+  });
+}
+
+export function toCheckInDto(
+  record: CheckInRecord & { _id: Types.ObjectId },
+  currentStreak = 0,
+) {
+  const meal = (value: CheckInRecord['meals']['breakfast']) =>
+    value.status === 'eaten'
+      ? {
+          status: 'eaten',
+          ...(value.description ? { description: value.description } : {}),
+        }
+      : { status: value.status };
+  return checkInDtoSchema.parse({
+    id: String(record._id),
+    localDate: record.localDate,
+    sleep: {
+      durationMinutes: record.sleep.durationMinutes ?? null,
+      quality: record.sleep.quality ?? null,
+    },
+    waterMl: record.waterMl ?? null,
+    mood: record.mood ?? null,
+    meals: {
+      breakfast: meal(record.meals.breakfast),
+      lunch: meal(record.meals.lunch),
+      dinner: meal(record.meals.dinner),
+      snacks: record.meals.snacks.map((s) => ({ description: s.description })),
+    },
+    alcoholStatus: record.alcoholStatus ?? null,
+    bowelStatus: record.bowelStatus ?? null,
+    habitCompletions: record.habitCompletions.map((h) => ({
+      habitId: String(h.habitId),
+      habitNameSnapshot: h.habitNameSnapshot,
+      completed: h.completed,
+    })),
+    pointAwards: record.pointAwards.map((a) => ({
+      triggerKey: a.triggerKey,
+      instanceKey: a.instanceKey,
+      points: a.points,
+      awardedAt: a.awardedAt.toISOString(),
+    })),
+    pointsEarned: record.pointAwards.reduce((n, a) => n + a.points, 0),
+    completion: completionOf(record),
+    completedFieldCount: completedFieldCount(record),
+    requiredFieldCount: 9,
+    currentStreak,
+    createdAt: record.createdAt.toISOString(),
+    updatedAt: record.updatedAt.toISOString(),
   });
 }
