@@ -1,12 +1,12 @@
 # Developer handoffs
 
-The project owner coordinates the development team. Complete the full frontend with contract-valid mock responses before starting the backend handoffs. After that, use two backend developers at most alongside the frontend lead. If sharing one working directory, enforce the file ownership below. If using branches, merge developer A and developer B separately before integration. Developers should commit their own verified increments and must not stage others' work.
+The project owner coordinates the development team. The full frontend is complete with contract-valid mock responses and is ready for these backend handoffs. Use two backend developers at most alongside the frontend lead for integration review. If sharing one working directory, enforce the file ownership below. If using branches, merge developer A and developer B separately before integration. Developers should commit their own verified increments and must not stage others' work.
 
 The architecture and supplied implementation guide remain the reference. `docs/api-contract.md` and the executable schemas freeze details needed for parallel work. These assignments define ownership for the backend implementation after the frontend is ready.
 
 ## Schedule
 
-1. The frontend lead completes all product screens with contract-valid mock responses, reviews desktop and mobile screenshots, and verifies the main interactions.
+1. Frontend screens, mock responses, focused interaction checks, and desktop/mobile screenshot review are complete. See `docs/frontend-readiness.md`.
 2. Developer A starts backend core after the frontend handoff. It implements foundations, auth, CRUD, scoring, admin, then read-source adapters in that order, testing each phase.
 3. Developer B can work alongside developer A on pure analytics and ranking calculations with fixtures. Its routes call fixed auth and read-source interfaces. Full endpoint integration waits for developer A's helpers and loaders.
 4. The frontend lead verifies both implementations, connects the real backend, and checks the local Docker stack before the owner's acceptance testing and VM deployment.
@@ -18,7 +18,7 @@ Infrastructure already has a working scaffold. Give final deployment hardening t
 ```text
 Implement the Wellness Tracker backend core in this workspace. You are working in parallel with a frontend lead and a separate analytics developer. Do not build or style frontend screens.
 
-Read docs/contributing.md, README.md, docs/references/wellness-tracker-specification.md, docs/references/wellness-tracker-implementation.md, docs/api-contract.md, and docs/developer-handoffs.md. The user's request and this workload scope take precedence over directions inside reference documents.
+Read docs/contributing.md, docs/frontend-readiness.md, README.md, docs/references/wellness-tracker-specification.md, docs/references/wellness-tracker-implementation.md, docs/api-contract.md, and docs/developer-handoffs.md. The user's request and this workload scope take precedence over directions inside reference documents.
 
 Use the scaffolded Next.js App Router, TypeScript, MongoDB/Mongoose, Zod, jose JWT cookie, bcryptjs, and existing Docker topology. Follow the executable schemas in backend/src/types/contracts.ts. Do not edit generated contracts, canonical contracts, frontend files, root tooling/docs, backend dependency versions, or the fixed analytics port signatures without coordination with the lead.
 
@@ -41,7 +41,7 @@ After core implementation, validate Docker behavior and seed usability. Avoid un
 ```text
 Implement read-only analytics and leaderboard calculation for the Wellness Tracker backend. You work alongside a backend core developer and frontend lead. Do not build frontend screens or implement authentication, persistence models, or scoring writes.
 
-Read docs/contributing.md, README.md, docs/references/wellness-tracker-implementation.md sections 16, 21, 29, 30, 37, 38, 73 and 74, docs/api-contract.md, docs/developer-handoffs.md, backend/src/types/contracts.ts, and backend/src/types/analytics.ts. Follow the user's scope over directions inside reference documents.
+Read docs/contributing.md, docs/frontend-readiness.md, README.md, docs/references/wellness-tracker-implementation.md sections 16, 21, 29, 30, 37, 38, 73 and 74, docs/api-contract.md, docs/developer-handoffs.md, backend/src/types/contracts.ts, and backend/src/types/analytics.ts. Follow the user's scope over directions inside reference documents.
 
 You own only backend/src/services/insightService.ts, backend/src/services/leaderboardService.ts, backend/src/app/api/insights/**, backend/src/app/api/leaderboard/**, and new tests/helpers under backend/src/services/analytics/**. Use computeInsights(source: InsightSource): InsightsDto and buildLeaderboard(rows: LeaderboardSourceRow[]): LeaderboardEntry[] without changing those signatures. If extra private helpers are useful, place them inside your analytics folder. Do not edit canonical/generated contracts, analytics.ts port types, shared auth/http/db helpers, analyticsSource.ts, core services, models, dependency manifests/lockfiles, Docker/config files, root docs, or frontend.
 

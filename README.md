@@ -1,26 +1,37 @@
-# Wellness Tracker
+# Daywell Wellness Tracker
 
-Scaffold for a React frontend and a separate Next.js REST backend. Product screens, authentication, persistence models, scoring, and analytics are not implemented yet. This phase intentionally stops before UI implementation.
+A responsive wellness tracker for daily check-ins, routines, personal targets, history, insights, and lightweight points. The React frontend is complete and includes an opt-in demo workspace. The separate Next.js REST backend is scaffolded and ready for implementation.
 
-The existing parent Git repository is retained. Both applications have their own manifests, lockfiles, tooling, Dockerfiles, and self-contained API schema copies. Neither application needs a parent npm workspace to build. They can later be extracted into sibling repositories as described by the implementation guide; Git history has not been restructured here.
+Both applications have their own manifests, lockfiles, tooling, Dockerfiles, and API schema copies. They build independently inside the current repository and can be extracted into sibling repositories if required.
 
-## Start locally
+## Preview the frontend
 
-Use Node 24 (`nvm use`) and Docker Compose. From the repo root:
+Use Node 24 (`nvm use`). From the repository root:
+
+```sh
+npm ci --prefix frontend
+npm run dev:demo --prefix frontend
+```
+
+Open `http://127.0.0.1:5173`. Choose **Explore demo** for the member experience or **Admin preview** for point configuration. Manual demo login uses `alex@example.com` or `admin@example.com`, with password `wellness123`.
+
+The demo includes sample history and persists edits on the current device. Registering creates a new, empty demo workspace. Use sample details when exploring registration. Demo session state is separate from real authentication; production uses the backend's HttpOnly cookie.
+
+## Connect the real backend
 
 ```sh
 npm run install:apps
 cp backend/.env.example backend/.env.local
-# Replace JWT_SECRET. APP_ORIGIN must match the browser origin exactly.
+# Replace JWT_SECRET and set APP_ORIGIN to the exact browser origin.
 docker compose -f backend/docker-compose.dev.yml up -d
 npm run dev --prefix backend
 # In another terminal:
 npm run dev --prefix frontend
 ```
 
-Open `http://localhost:5173`. Use localhost consistently because it is the default APP_ORIGIN. The browser calls the same origin through Vite's API proxy. Registration and all product API routes currently return 501. Liveness is `/api/health`; readiness is `/api/health/ready`.
+Open `http://localhost:5173` for the default backend APP_ORIGIN. Normal development and production builds use the real API. There is no automatic fallback to sample data. Backend product endpoints currently return 501 until implemented; liveness and MongoDB readiness already work.
 
-Set `VITE_PUBLIC_BASE_PATH` in `frontend/.env.local` to exercise nested routing locally. Vite's proxy strips the same public prefix before reaching Next.js. Changing the prefix requires a frontend rebuild for production. Next.js has no `basePath`.
+Set `VITE_PUBLIC_BASE_PATH` in `frontend/.env.local` when testing a nested path. The router, requests, fonts, logo, favicon, and lazy chunks all derive their public prefix from Vite BASE_URL. Vite and host Nginx strip the public prefix before forwarding requests. Next.js has no `basePath`.
 
 ## Check and build
 
@@ -30,21 +41,26 @@ npm run build
 python3 backend/deploy/nginx/test_render_snippet.py
 ```
 
-`npm run check` verifies contract synchronization and both applications' lint, strict types, tests, and formatting. Dependencies use exact versions and checked-in lockfiles. Run `npm ci` in each app for reproducible installs.
+`npm run check` verifies synchronized contracts, lint, strict types, focused tests, and formatting in both applications. Exact dependency versions and lockfiles support reproducible `npm ci` installs.
 
-## Contracts and next work
+Frontend-only commands:
 
-- `docs/api-contract.md`: API behavior, units, patch semantics, analytics definitions, and pending implementation boundaries.
+```sh
+npm run check --prefix frontend
+npm run build --prefix frontend
+npm run build:demo --prefix frontend
+```
+
+The normal production build excludes the demo transport, sample accounts, and sample credentials. The demo build is intended for review. Do not use it as a production authentication system.
+
+## Development references
+
+- `docs/frontend-readiness.md`: completed frontend scope, verification, and backend integration checklist.
+- `docs/developer-handoffs.md`: scoped backend implementation assignments.
+- `docs/api-contract.md`: exact payloads, units, PATCH semantics, and analytics definitions.
 - `contracts/wellness.ts`: canonical Zod request and response schemas.
-- `docs/developer-handoffs.md`: paste-ready workloads for developers launched by the owner.
-- `docs/deployment.md`: Docker and host Nginx setup.
-- `docs/references/wellness-tracker-specification.md`: supplied product reference.
-- `docs/references/wellness-tracker-implementation.md`: supplied implementation reference.
+- `docs/contributing.md`: development and commit conventions.
+- `docs/deployment.md`: Docker and existing host Nginx integration.
+- `docs/references/`: product and implementation references.
 
-Edit the canonical schema, then run `npm run contracts:sync`. This generates `frontend/src/types/contracts.ts` and `backend/src/types/contracts.ts`. App-local generated copies make separate checkout/build contexts possible. Contract changes require agreement with the lead frontend developer.
-
-The frontend includes route placeholders, TanStack Query, a base-aware API client, runtime DTO validation, and feature folders. Route protection and mock API scenarios belong to the next frontend phase. Placeholders currently have no session and are accessible only to demonstrate route wiring.
-
-Backend handlers exist for every specified endpoint. Except for health/readiness, they are stubs or depend on explicit stubs. The backend foundation includes environment validation, a reusable database connection, structured logging, an error envelope, and fixed analytics integration signatures.
-
-Tooling setup follows the official [Vite documentation](https://vite.dev/guide/), [Next.js installation guide](https://nextjs.org/docs/app/getting-started/installation), and [Tailwind Vite integration](https://tailwindcss.com/docs/installation/using-vite).
+After an agreed contract change, edit the canonical schema and run `npm run contracts:sync`. Generated app-local copies keep separate build contexts possible. The backend owns trusted authorization, scoring, streaks, and statistics; the frontend consumes validated DTOs.

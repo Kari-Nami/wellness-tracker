@@ -38,4 +38,4 @@ Use a separate env file, project name, and unused loopback ports so checks do no
 
 Use `mongodump --archive --gzip` against the authenticated Mongo service and retain a protected copy outside its data volume. Have the backend/operations developer document credential-safe backup/restore commands before deployment. Never use `down -v` on the real application stack unless intentionally deleting its database. Pull both checkouts, run checks/builds, rebuild Compose, check readiness, and smoke-test the public subpath before considering an update complete.
 
-Production release is pending full implementation and owner acceptance. The scaffold is not a finished deployment.
+The frontend is implemented and reviewed. Production release still requires backend implementation, real cookie/authorization checks, complete-stack integration, and owner acceptance.

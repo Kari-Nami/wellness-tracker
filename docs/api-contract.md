@@ -89,6 +89,6 @@ No medical interpretation, prediction, or sleep-versus-mood inference is include
 
 All-time eligible participants have role user and leaderboardEnabled=true. Include zero-score participants. Sort descending points, then displayName, then server-only tieBreakKey for stable ties. Rank is the one-based ordinal position. Return only rank, displayName, points, currentStreak, and isCurrentUser. The boolean identifies the viewer's row even when names duplicate; no other user's ID, email, habits, goals, or wellness data is exposed. An opted-out user has no row. No public unauthenticated leaderboard endpoint is required.
 
-## Scaffold boundaries
+## Implementation boundaries
 
-Runtime schemas and API clients are implemented. Backend business services, authentication guards, MongoDB models, analytics-source loaders, and seeds await the assigned developers. Route placeholders are intentionally unprotected until the full frontend phase. These statements describe scaffolding, not completed product behavior.
+The full frontend, protected routes, runtime schemas, API clients, and opt-in demo transport are implemented. Backend business services, authentication guards, MongoDB models, analytics-source loaders, and seeds await the assigned developers. Demo calculations do not replace the trusted backend implementation. See `docs/frontend-readiness.md` before integration.
