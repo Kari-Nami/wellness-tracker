@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { AppError, handleRoute, notImplemented } from './http';
+import { AppError, handleRoute } from './http';
 import { GET } from '../app/api/health/route';
 vi.mock('./logger', () => ({ logger: { error: vi.fn() } }));
 describe('route responses', () => {
@@ -9,13 +9,6 @@ describe('route responses', () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({
       data: { status: 'ok', contractVersion: '1.0.0' },
-    });
-  });
-  it('makes scaffold routes explicitly unimplemented', async () => {
-    const response = await handleRoute(() => notImplemented());
-    expect(response.status).toBe(501);
-    expect(await response.json()).toMatchObject({
-      error: { code: 'NOT_IMPLEMENTED' },
     });
   });
   it('maps payload validation to 400 and domain conflicts to 409', async () => {

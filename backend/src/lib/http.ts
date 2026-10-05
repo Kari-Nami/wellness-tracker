@@ -23,13 +23,6 @@ export function noContent() {
     headers: { 'Cache-Control': 'no-store' },
   });
 }
-export function notImplemented(): never {
-  throw new AppError(
-    501,
-    'NOT_IMPLEMENTED',
-    'This endpoint is scaffolded and has not been implemented yet.',
-  );
-}
 export async function readJson(request: Request): Promise<unknown> {
   try {
     if (
