@@ -18,6 +18,7 @@ import {
 import { completionOf } from './completion';
 import { streakHistory } from './streakService';
 import { rowsForDate } from './habitEligibility';
+import { reconcileAwards } from './scoringService';
 export const completionProjection =
   'localDate sleep waterMl mood meals.breakfast.status meals.lunch.status meals.dinner.status alcoholStatus bowelStatus';
 export async function loadCurrentStreak(
@@ -152,9 +153,10 @@ export async function writeCheckIn(
     record.set(fields);
     record.set('habitCompletions', rows);
     await record.save({ session });
+    const scored = await reconcileAwards(user, localDate, session);
     return toCheckInDto(
-      record,
-      await loadCurrentStreak(userId, user.timezone, session),
+      scored.history.find((r) => r.localDate === localDate)!,
+      scored.currentStreak,
     );
   });
 }
@@ -172,5 +174,6 @@ export async function deleteCheckIn(userId: string, date: string) {
         'NOT_FOUND',
         'No check-in has been recorded for this day.',
       );
+    await reconcileAwards(user, date, session);
   });
 }
