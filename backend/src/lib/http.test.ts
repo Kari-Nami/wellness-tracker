@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { AppError, handleRoute } from './http';
+import { AppError, handleRoute, readJson } from './http';
 import { GET } from '../app/api/health/route';
 vi.mock('./logger', () => ({ logger: { error: vi.fn() } }));
 describe('route responses', () => {
@@ -37,4 +37,22 @@ describe('route responses', () => {
       'private connection details',
     );
   });
+});
+
+it('limits streamed JSON before parsing and maps database outages to a safe 503', async () => {
+  const oversized = new Request('http://localhost/api/check-ins', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: '"' + 'x'.repeat(65536) + '"',
+  });
+  await expect(readJson(oversized)).rejects.toMatchObject({ status: 413 });
+  const error = new Error('private database connection');
+  error.name = 'MongooseServerSelectionError';
+  const result = await handleRoute(() => {
+    throw error;
+  });
+  expect(result.status).toBe(503);
+  expect(JSON.stringify(await result.json())).not.toContain(
+    'private database connection',
+  );
 });

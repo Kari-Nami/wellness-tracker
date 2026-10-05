@@ -64,6 +64,7 @@ export function TrendChart({
             fillOpacity={0.07}
             isAnimationActive={false}
             connectNulls={false}
+            dot={{ r: 3, fill: color, stroke: '#fff', strokeWidth: 1 }}
           />
         </AreaChart>
       </ResponsiveContainer>

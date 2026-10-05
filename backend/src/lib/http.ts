@@ -36,14 +36,34 @@ export async function readJson(request: Request): Promise<unknown> {
         'VALIDATION_ERROR',
         'Use an application/json request body.',
       );
-    const text = await request.text();
-    if (Buffer.byteLength(text, 'utf8') > 65536)
+    const reader = request.body?.getReader();
+    if (!reader)
       throw new AppError(
-        413,
-        'PAYLOAD_TOO_LARGE',
-        'This request is too large.',
+        400,
+        'VALIDATION_ERROR',
+        'Provide a JSON request body.',
       );
-    return JSON.parse(text) as unknown;
+    const chunks: Uint8Array[] = [];
+    let length = 0;
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        length += value.byteLength;
+        if (length > 65536) {
+          await reader.cancel();
+          throw new AppError(
+            413,
+            'PAYLOAD_TOO_LARGE',
+            'This request is too large.',
+          );
+        }
+        chunks.push(value);
+      }
+    } finally {
+      reader.releaseLock();
+    }
+    return JSON.parse(Buffer.concat(chunks).toString('utf8')) as unknown;
   } catch (error) {
     if (error instanceof AppError) throw error;
     throw new AppError(
@@ -93,7 +113,7 @@ export async function handleRoute(
       );
     if (
       error instanceof Error &&
-      (/^Mongo(?:Network|ServerSelection|NotConnected|TopologyClosed|Timeout)/.test(
+      (/^(?:Mongo|Mongoose)(?:Network|ServerSelection|NotConnected|TopologyClosed|Timeout)/.test(
         error.name,
       ) ||
         ('code' in error && error.code === 20))

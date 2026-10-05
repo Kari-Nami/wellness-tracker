@@ -1,0 +1,40 @@
+name: Verify application
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+            backend/package-lock.json
+      - run: npm run install:apps
+      - run: npm run check
+      - run: npm run build
+      - run: python3 backend/deploy/nginx/test_render_snippet.py
+      - run: npm run test:integration --prefix backend
+      - id: local-config
+        run: node scripts/setup-local.mjs
+      - name: Build and start the isolated stack
+        run: docker compose --env-file backend/.env.docker.local -f backend/docker-compose.prod.yml -f backend/docker-compose.local.yml up -d --build --wait --wait-timeout 180
+      - name: Seed local point rules and operator
+        run: docker compose --env-file backend/.env.docker.local -f backend/docker-compose.prod.yml -f backend/docker-compose.local.yml --profile operations run --rm --build tools npm run seed -- all
+      - run: npm run test:stack --prefix backend
+      - name: Remove disposable stack
+        if: always() && steps.local-config.outcome == 'success'
+        run: docker compose --env-file backend/.env.docker.local -f backend/docker-compose.prod.yml -f backend/docker-compose.local.yml down -v
