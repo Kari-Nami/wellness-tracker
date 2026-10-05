@@ -1,0 +1,15 @@
+# Local ingress simulates the existing host Nginx without occupying host ports 80/443.
+services:
+  gateway:
+    image: nginx:1.28-alpine
+    ports:
+      - '127.0.0.1:${GATEWAY_HOST_PORT:-18081}:80'
+    volumes:
+      - ./deploy/nginx/local.conf.template:/etc/nginx/templates/default.conf.template:ro
+    environment:
+      PUBLIC_BASE_PATH: ${PUBLIC_BASE_PATH:?Set PUBLIC_BASE_PATH}
+    depends_on:
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy

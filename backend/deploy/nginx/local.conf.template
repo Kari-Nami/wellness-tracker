@@ -1,0 +1,17 @@
+server {
+    listen 80;
+    server_name localhost;
+    client_max_body_size 64k;
+    location = ${PUBLIC_BASE_PATH} { return 301 ${PUBLIC_BASE_PATH}/; }
+    location ^~ ${PUBLIC_BASE_PATH}/api/ {
+        proxy_pass http://backend:3000/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    location ^~ ${PUBLIC_BASE_PATH}/ {
+        proxy_pass http://frontend:80/;
+        proxy_set_header Host $host;
+    }
+    location / { return 404; }
+}

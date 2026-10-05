@@ -16,7 +16,7 @@ services:
     build:
       context: .
     restart: unless-stopped
-    environment:
+    environment: &backend-environment
       NODE_ENV: production
       APP_ORIGIN: ${APP_ORIGIN:?Set APP_ORIGIN}
       PUBLIC_BASE_PATH: ${PUBLIC_BASE_PATH:-/}
@@ -49,8 +49,12 @@ services:
       MONGO_REPLICA_KEY: ${MONGO_REPLICA_KEY:?Set MONGO_REPLICA_KEY}
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:?Set MONGO_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?Set MONGO_ROOT_PASSWORD}
+      MONGO_APP_USERNAME: ${MONGO_APP_USERNAME:?Set MONGO_APP_USERNAME}
+      MONGO_APP_PASSWORD: ${MONGO_APP_PASSWORD:?Set MONGO_APP_PASSWORD}
+      MONGO_APP_DATABASE: ${MONGO_APP_DATABASE:-wellness_tracker}
     volumes:
       - mongo_data:/data/db
+      - ./deploy/mongo/init-app-user.js:/docker-entrypoint-initdb.d/init-app-user.js:ro
       - ./deploy/mongo/start.sh:/opt/wellness/start.sh:ro
       - ./deploy/mongo/healthcheck.js:/opt/wellness/healthcheck.js:ro
     healthcheck:
@@ -64,5 +68,19 @@ services:
       timeout: 5s
       start_period: 20s
       retries: 10
+  tools:
+    profiles: ['operations']
+    build:
+      context: .
+      target: tooling
+    environment:
+      <<: *backend-environment
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      ADMIN_DISPLAY_NAME: ${ADMIN_DISPLAY_NAME:-Administrator}
+      ADMIN_TIMEZONE: ${ADMIN_TIMEZONE:-UTC}
+    depends_on:
+      mongo:
+        condition: service_healthy
 volumes:
   mongo_data:

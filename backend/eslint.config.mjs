@@ -11,8 +11,15 @@ export default tseslint.config(
     ],
   },
   {
-    files: ['deploy/mongo/healthcheck.js'],
-    languageOptions: { globals: { rs: 'readonly', quit: 'readonly' } },
+    files: ['deploy/mongo/*.js'],
+    languageOptions: {
+      globals: {
+        rs: 'readonly',
+        quit: 'readonly',
+        db: 'readonly',
+        process: 'readonly',
+      },
+    },
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
