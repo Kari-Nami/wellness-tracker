@@ -6,6 +6,7 @@ import {
   type InferSchemaType,
 } from 'mongoose';
 import { DEFAULT_GOALS, bowelStatusSchema } from '../types/contracts';
+import { DEMO_ACCOUNTS } from '../types/demoAccounts';
 const goals = new Schema(
   {
     sleepHours: { type: Number, required: true, min: 0, max: 24 },
@@ -44,6 +45,13 @@ const schema = new Schema(
       required: true,
     },
     leaderboardEnabled: { type: Boolean, default: true, required: true },
+    demoKey: {
+      type: String,
+      enum: DEMO_ACCOUNTS.map((a) => a.key),
+      unique: true,
+      sparse: true,
+    },
+    demoHabitIds: { type: [Schema.Types.ObjectId], default: [] },
     mutationRevision: { type: Number, default: 0, required: true },
   },
   { timestamps: true, strict: 'throw', collection: 'users' },

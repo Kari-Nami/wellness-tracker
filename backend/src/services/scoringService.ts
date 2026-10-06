@@ -11,7 +11,7 @@ import { triggerRegistry, streakKeys } from './triggerRegistry';
 import type { CheckInDto } from '../types/contracts';
 export async function reconcileAwards(
   user: HydratedDocument<UserRecord>,
-  editedDate: string,
+  editedDate: string | ReadonlySet<string>,
   session: ClientSession,
 ) {
   const history = await DailyCheckIn.find({ userId: user._id })
@@ -28,7 +28,10 @@ export async function reconcileAwards(
   for (let i = 0; i < history.length; i++) {
     const record = history[i];
     const dto = dtos[i];
-    const direct = dto.localDate === editedDate;
+    const direct =
+      typeof editedDate === 'string'
+        ? dto.localDate === editedDate
+        : editedDate.has(dto.localDate);
     const eligibleHabitIds = new Set(
       dto.localDate < today
         ? dto.habitCompletions.map((h) => h.habitId)

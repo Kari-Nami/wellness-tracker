@@ -72,4 +72,4 @@ Restore replaces collections present in the archive and is limited to MONGO_APP_
 
 Pull the intended revision, run checks and builds, create a consistent backup, rebuild Compose, verify readiness, and smoke-test the public subpath. Keep the previous revision available for application rollback; database changes need their own recovery plan. There are no destructive migrations in this version.
 
-See `docs/local-testing.md` for the authenticated Docker simulation. Its additional local gateway does not belong in VM production Compose. Local startup, subpath routing, real HTTP behavior, and a backup/restore round trip have passed. The project owner performs final local acceptance, configures the remote repository, and deploys to the VM.
+See `docs/local-testing.md` for the authenticated Docker simulation. Its additional temporary local gateway does not belong in VM production Compose. Local startup, subpath routing, real HTTP behavior, and a backup/restore round trip have passed. The project owner performs final local acceptance, configures the remote repository, and deploys to the VM.

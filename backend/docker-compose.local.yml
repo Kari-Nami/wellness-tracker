@@ -1,6 +1,6 @@
 # Local ingress simulates the existing host Nginx without occupying host ports 80/443.
 services:
-  gateway:
+  temp-gateway:
     image: nginx:1.28-alpine
     ports:
       - '127.0.0.1:${GATEWAY_HOST_PORT:-18081}:80'

@@ -1,6 +1,6 @@
 # Local acceptance
 
-The complete stack is available at [localhost:18081/wellness](http://localhost:18081/wellness/). Use localhost consistently. The local gateway simulates public subpath routing, while production images retain Secure cookies. VM traffic must use HTTPS.
+The complete stack is available at [localhost:18081/wellness](http://localhost:18081/wellness/). Use localhost consistently. The temporary local gateway simulates public subpath routing, while production images retain Secure cookies. VM traffic must use HTTPS.
 
 ## Startup
 
@@ -54,7 +54,7 @@ docker compose --env-file backend/.env.docker.local \
   -f backend/docker-compose.prod.yml -f backend/docker-compose.local.yml down
 ```
 
-Restart using `up -d --wait`; add `--build` after source changes. Restart the local gateway after replacing application containers if Docker assigns new addresses. Keep the generated environment file stable because changing init credentials does not update users inside an existing volume. Delete the local database volume only when intentionally resetting disposable local data.
+Restart using `up -d --wait`; add `--build` after source changes. Restart the temporary local gateway after replacing application containers if Docker assigns new addresses. Keep the generated environment file stable because changing init credentials does not update users inside an existing volume. Delete the local database volume only when intentionally resetting disposable local data.
 
 ## Native development
 
