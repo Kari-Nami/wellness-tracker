@@ -1,14 +1,14 @@
 # API contract v1
 
-This addendum resolves details left open in the supplied implementation guide. This contract retains the supplied documents' architecture and domain boundaries. These choices retain the frameworks, domain models, authentication design, and deployment topology. The lead frontend developer owns contract changes.
+This addendum resolves details left open in the supplied implementation guide. This contract retains the supplied documents' architecture and domain boundaries. These choices retain the frameworks, domain models, authentication design, and deployment topology. Review contract changes before updating their consumers.
 
-`contracts/wellness.ts` is the executable request/response schema source. Both app-local copies are generated. `backend/src/types/analytics.ts` additionally freezes internal read-service ports so the assigned backend developers can work independently.
+`contracts/wellness.ts` is the executable request/response schema source. Both app-local copies are generated. `backend/src/types/analytics.ts` additionally freezes internal read-service ports to separate database reads from pure analytics.
 
 ## Transport
 
 Internal routes begin `/api`. Browser routes begin `${appBasePath}/api`. Vite and host Nginx strip the public prefix. No backend `basePath`, broad CORS, JWT in browser storage, or direct browser database access.
 
-JSON success is `{ "data": value }`; JSON failure is `{ "error": { "code": string, "message": string, "details"?: object } }`. Responses with private data use `Cache-Control: no-store`. Logout and all deletes use 204 with no body. Create uses 201. PATCH and reads use 200. Validation uses 400, missing session 401, denied role 403, missing record 404, duplicate or capacity conflict 409, dependency failure 503. Scaffold stubs use 501 with `NOT_IMPLEMENTED`.
+JSON success is `{ "data": value }`; JSON failure is `{ "error": { "code": string, "message": string, "details"?: object } }`. Responses with private data use `Cache-Control: no-store`. Logout and all deletes use 204 with no body. Create uses 201. PATCH and reads use 200. Validation uses 400, missing session 401, denied role 403, missing record 404, duplicate or capacity conflict 409, dependency failure 503.
 
 Dates are validated `YYYY-MM-DD` local calendar dates. Timestamps are UTC ISO strings. IDs are serialized MongoDB ObjectId strings. Reject server-owned and unknown request fields. Never accept ownership, role, point awards, snapshots, completion, or timestamps from writes.
 
@@ -91,4 +91,4 @@ All-time eligible participants have role user and leaderboardEnabled=true. Inclu
 
 ## Implementation boundaries
 
-The full frontend, protected routes, runtime schemas, API clients, and opt-in demo transport are implemented. Backend business services, authentication guards, MongoDB models, analytics-source loaders, and seeds await the assigned developers. Demo calculations do not replace the trusted backend implementation. See `docs/frontend-readiness.md` before integration.
+All contract endpoints, persistent services, seeds, and the full frontend are implemented. Trusted authorization, scoring, streaks, and metrics live in the backend. Demo calculations remain development-only. See `docs/frontend-readiness.md` for visual review and `docs/local-testing.md` for final acceptance.

@@ -1,66 +1,56 @@
 # Daywell Wellness Tracker
 
-A responsive wellness tracker for daily check-ins, routines, personal targets, history, insights, and lightweight points. The React frontend is complete and includes an opt-in demo workspace. The separate Next.js REST backend is scaffolded and ready for implementation.
+A responsive wellness tracker with daily check-ins, habits, personal targets, calendar history, insights, points, and a privacy-controlled leaderboard. React and Vite serve the frontend; a separate Next.js REST API persists data in MongoDB. The original SVG identity appears in the application, favicon, and touch icon.
 
-Both applications have their own manifests, lockfiles, tooling, Dockerfiles, and API schema copies. They build independently inside the current repository and can be extracted into sibling repositories if required.
+## Run the complete stack locally
 
-## Preview the frontend
-
-Use Node 24 (`nvm use`). From the repository root:
-
-```sh
-npm ci --prefix frontend
-npm run dev:demo --prefix frontend
-```
-
-Open `http://127.0.0.1:5173`. Choose **Explore demo** for the member experience or **Admin preview** for point configuration. Manual demo login uses `alex@example.com` or `admin@example.com`, with password `wellness123`.
-
-The demo includes sample history and persists edits on the current device. Registering creates a new, empty demo workspace. Use sample details when exploring registration. Demo session state is separate from real authentication; production uses the backend's HttpOnly cookie.
-
-## Connect the real backend
+Use Node 24 and Docker. From the repository root:
 
 ```sh
 npm run install:apps
-cp backend/.env.example backend/.env.local
-# Replace JWT_SECRET and set APP_ORIGIN to the exact browser origin.
-docker compose -f backend/docker-compose.dev.yml up -d
-npm run dev --prefix backend
-# In another terminal:
-npm run dev --prefix frontend
+npm run setup:local
+docker compose --env-file backend/.env.docker.local \
+  -f backend/docker-compose.prod.yml -f backend/docker-compose.local.yml \
+  up -d --build --wait
+docker compose --env-file backend/.env.docker.local \
+  -f backend/docker-compose.prod.yml -f backend/docker-compose.local.yml \
+  --profile operations run --rm --build tools npm run seed -- all
 ```
 
-Open `http://localhost:5173` for the default backend APP_ORIGIN. Normal development and production builds use the real API. There is no automatic fallback to sample data. Backend product endpoints currently return 501 until implemented; liveness and MongoDB readiness already work.
+Open [Daywell locally](http://localhost:18081/wellness/). Register a member account. Operator login uses ADMIN_EMAIL and ADMIN_PASSWORD from the generated, ignored `backend/.env.docker.local` file. The setup command generates random secrets, writes files with mode 600, and preserves existing configuration.
 
-Set `VITE_PUBLIC_BASE_PATH` in `frontend/.env.local` when testing a nested path. The router, requests, fonts, logo, favicon, and lazy chunks all derive their public prefix from Vite BASE_URL. Vite and host Nginx strip the public prefix before forwarding requests. Next.js has no `basePath`.
+The local stack runs the production builds with authenticated MongoDB, a single-member replica set, and a gateway simulating host Nginx. MongoDB is private; published ports bind to loopback. Use localhost consistently for local Secure cookies. Public deployment uses HTTPS.
 
-## Check and build
+See [local testing](docs/local-testing.md) for acceptance steps, native development, and stop/restart commands. The project owner performs final acceptance and VM deployment.
+
+## Checks
 
 ```sh
 npm run check
 npm run build
+npm run test:integration
+npm run test:stack
 python3 backend/deploy/nginx/test_render_snippet.py
 ```
 
-`npm run check` verifies synchronized contracts, lint, strict types, focused tests, and formatting in both applications. Exact dependency versions and lockfiles support reproducible `npm ci` installs.
+Checks cover synchronized contracts, lint, strict types, tests, and formatting. Integration tests create and remove a disposable MongoDB replica set without touching application data. Stack checks require the seeded local Docker stack and create disposable test accounts. The GitHub verification workflow runs these checks and the real Docker smoke test on pushes and pull requests; its first hosted run follows publication.
 
-Frontend-only commands:
+## Frontend demo
 
 ```sh
-npm run check --prefix frontend
-npm run build --prefix frontend
-npm run build:demo --prefix frontend
+npm run dev:demo --prefix frontend
 ```
 
-The normal production build excludes the demo transport, sample accounts, and sample credentials. The demo build is intended for review. Do not use it as a production authentication system.
+The optional demo at `http://127.0.0.1:5173` uses device-local sample data. Demo accounts are `alex@example.com` and `admin@example.com`, password `wellness123`. New registrations start empty. Normal development and production use the real API and exclude the sample transport and credentials.
 
-## Development references
+## Project references
 
-- `docs/frontend-readiness.md`: completed frontend scope, verification, and backend integration checklist.
-- `docs/developer-handoffs.md`: scoped backend implementation assignments.
-- `docs/api-contract.md`: exact payloads, units, PATCH semantics, and analytics definitions.
-- `contracts/wellness.ts`: canonical Zod request and response schemas.
-- `docs/contributing.md`: development and commit conventions.
-- `docs/deployment.md`: Docker and existing host Nginx integration.
-- `docs/references/`: product and implementation references.
+- [API contract](docs/api-contract.md): payloads, units, PATCH behavior, scoring, analytics, and privacy.
+- [Executable schemas](contracts/wellness.ts): canonical Zod contracts. Run `npm run contracts:sync` after an agreed change.
+- [Frontend readiness](docs/frontend-readiness.md): implemented screens and visual review.
+- [Developer map](docs/developer-handoffs.md): module boundaries and maintenance guidance.
+- [Development workflow](docs/contributing.md): verification and commit conventions.
+- [Deployment](docs/deployment.md): existing VM Nginx/Certbot integration, seeds, backup, and restore.
+- [Product references](docs/references/): original product and implementation guidance with developer-facing wording.
 
-After an agreed contract change, edit the canonical schema and run `npm run contracts:sync`. Generated app-local copies keep separate build contexts possible. The backend owns trusted authorization, scoring, streaks, and statistics; the frontend consumes validated DTOs.
+Both applications retain independent manifests, lockfiles, tooling, Dockerfiles, and generated schema copies. They can be extracted into sibling repositories without shared runtime packages. The backend owns authorization, scoring, streaks, and metrics; the frontend validates its responses.
