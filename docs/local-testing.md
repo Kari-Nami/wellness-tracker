@@ -1,6 +1,6 @@
 # Local acceptance
 
-The complete stack is available at [localhost:18081/wellness](http://localhost:18081/wellness/). Use localhost consistently. The temporary local gateway simulates public subpath routing, while production images retain Secure cookies. VM traffic must use HTTPS.
+The complete stack is available at [localhost:18081/wellness](http://localhost:18081/wellness/). The temporary gateway redirects alternate hostnames such as 127.0.0.1 to the configured APP_ORIGIN, keeping cookie scope and write Origin checks consistent. The temporary local gateway simulates public subpath routing, while production images retain Secure cookies. VM traffic must use HTTPS.
 
 ## Startup
 

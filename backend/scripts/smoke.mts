@@ -14,6 +14,7 @@ import {
   DEFAULT_GOALS,
 } from '../src/types/contracts';
 import { todayInZone, shiftDate } from '../src/lib/dates';
+import { DEMO_ACCOUNTS } from '../src/types/demoAccounts';
 config({ path: process.argv[2] ?? '.env.docker.local', quiet: true });
 const origin = process.env.APP_ORIGIN!;
 assert.ok(
@@ -54,6 +55,26 @@ const suffix = randomUUID().slice(0, 8),
 const date = todayInZone('Asia/Bangkok');
 await response('/health');
 await response('/health/ready');
+for (const demo of DEMO_ACCOUNTS) {
+  const signedIn = await data(
+    await response('/auth/login', 'POST', {
+      email: demo.email,
+      password: demo.password,
+    }),
+    userDtoSchema,
+  );
+  assert.equal(signedIn.role, demo.role);
+}
+if (new URL(origin).hostname === 'localhost') {
+  const alias = new URL(origin + prefix + '/login?review=origin');
+  alias.hostname = '127.0.0.1';
+  const redirected = await fetch(alias, { redirect: 'manual' });
+  assert.equal(redirected.status, 308);
+  assert.equal(
+    redirected.headers.get('location'),
+    origin + prefix + '/login?review=origin',
+  );
+}
 const page = await fetch(origin + prefix + '/calendar');
 assert.equal(page.status, 200);
 const html = await page.text();

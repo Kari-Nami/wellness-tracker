@@ -7,6 +7,7 @@ services:
     volumes:
       - ./deploy/nginx/local.conf.template:/etc/nginx/templates/default.conf.template:ro
     environment:
+      APP_ORIGIN: ${APP_ORIGIN:?Set APP_ORIGIN}
       PUBLIC_BASE_PATH: ${PUBLIC_BASE_PATH:?Set PUBLIC_BASE_PATH}
     depends_on:
       frontend:

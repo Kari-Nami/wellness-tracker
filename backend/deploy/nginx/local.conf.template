@@ -1,6 +1,11 @@
 server {
     listen 80;
     server_name localhost;
+    # Use one browser origin for sessions and form submissions.
+    set $browser_origin "$scheme://$http_host";
+    if ($browser_origin != "${APP_ORIGIN}") {
+        return 308 ${APP_ORIGIN}$request_uri;
+    }
     client_max_body_size 64k;
     location = ${PUBLIC_BASE_PATH} { return 301 ${PUBLIC_BASE_PATH}/; }
     location ^~ ${PUBLIC_BASE_PATH}/api/ {
