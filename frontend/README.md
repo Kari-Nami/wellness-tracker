@@ -1,4 +1,4 @@
-# Daywell frontend
+# Wellness Tracker frontend
 
 An independent React + Vite application for the Wellness Tracker. It implements sign-in, registration, Today, historical editing, Calendar, Insights, Leaderboard, Profile, habit management, and administrator point rules.
 
@@ -30,7 +30,7 @@ All requests go through the typed client, include cookie credentials, and valida
 The Dockerfile defaults to real API mode. To build an explicit review image below a path:
 
 ```sh
-docker build -t daywell-frontend-review \
+docker build -t wellness-tracker-frontend-review \
   --build-arg VITE_PUBLIC_BASE_PATH=/webdev/wellness-tracker \
   --build-arg VITE_API_MODE=mock .
 ```

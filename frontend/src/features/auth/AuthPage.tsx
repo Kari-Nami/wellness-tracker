@@ -258,7 +258,9 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
             </Button>
           </form>
           <p className="auth-switch">
-            {registerMode ? 'Already have an account?' : 'New to Daywell?'}{' '}
+            {registerMode
+              ? 'Already have an account?'
+              : 'New to Wellness Tracker?'}{' '}
             <Link to={registerMode ? '/login' : '/register'}>
               {registerMode ? 'Sign in' : 'Create an account'}
             </Link>
@@ -282,7 +284,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
           </p>
         </div>
         <p className="auth-bottom">
-          DAYWELL <span>Wellness, one day at a time.</span>
+          WELLNESS TRACKER <span>Wellness, one day at a time.</span>
         </p>
       </section>
     </div>

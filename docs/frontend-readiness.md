@@ -22,7 +22,7 @@ The frontend is complete against contract v1 and integrated with the persistent 
 Verified on October 8, 2026:
 
 - Frontend lint, strict type checks, formatting, and 29 focused tests pass.
-- Both applications' root checks pass, including 16 backend unit tests, 21 isolated MongoDB integration tests, and contract synchronization.
+- Both applications' root checks pass, including 16 backend unit tests, 22 isolated MongoDB integration tests, and contract synchronization.
 - Real production frontend build passes and excludes the device-local mock storage and transport. Public seeded demo credentials are intentionally included in the login panel.
 - Desktop and mobile screenshots were captured and inspected for every required screen. Mobile layouts were checked at 375 CSS pixels with no horizontal page overflow. Desktop review covered 1309 and 1440 CSS pixels.
 - Calendar selection, demo member/admin login, account switching, and saving an existing admin rule were checked through the preview.
@@ -41,3 +41,5 @@ Screenshots are ignored local artifacts in `frontend/screenshots/`, including `r
 ## Acceptance
 
 Follow `docs/local-testing.md`. The project owner performs final local testing, then follows `docs/deployment.md` for VM deployment. The API contract and developer map document the implementation boundaries. Exact pause/resume history remains outside the supplied Habit model; existing historical snapshots are authoritative, and missing historical dates use available state and creation/deletion boundaries.
+
+The public brand is Wellness Tracker. The header, authentication screens, page titles, SVG mark, favicon, and touch icon use this name. Public demo emails use `@demo.wellness.example`; the controlled seed updates marked demo accounts in place and preserves their saved history and password.

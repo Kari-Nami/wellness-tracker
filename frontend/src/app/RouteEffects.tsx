@@ -13,7 +13,8 @@ export function RouteEffects() {
       login: 'Sign in',
       register: 'Create account',
     };
-    document.title = `${labels[pathname.split('/')[1]] ?? 'Daywell'} | Daywell`;
+    const label = labels[pathname.split('/')[1]];
+    document.title = label ? `${label} | Wellness Tracker` : 'Wellness Tracker';
     if (hash) {
       requestAnimationFrame(() =>
         document

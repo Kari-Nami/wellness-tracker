@@ -181,15 +181,13 @@ h3 {
   font-weight: 800;
 }
 .brand-mark {
+  flex-shrink: 0;
   width: 35px;
   height: 35px;
   background: var(--green);
   border-radius: 11px;
   display: grid;
   place-items: center;
-  color: #5e7056;
-}
-.brand-dot {
   color: #5e7056;
 }
 .field {
@@ -959,7 +957,9 @@ textarea.input {
     display: none;
   }
   .brand {
-    font-size: 23px;
+    font-size: 20px;
+    letter-spacing: -0.7px;
+    white-space: nowrap;
   }
   .mobile-nav {
     position: fixed;

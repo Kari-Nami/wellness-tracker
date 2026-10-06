@@ -10,7 +10,7 @@ export function NotFoundPage() {
       <h1>Let's find your way back.</h1>
       <p>This page doesn't exist. Your daily space is still here.</p>
       <Link className="button button-primary" to="/">
-        Back to Daywell <ArrowRight size={15} />
+        Back to Wellness Tracker <ArrowRight size={15} />
       </Link>
     </main>
   );

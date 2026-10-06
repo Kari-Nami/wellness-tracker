@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 export function Brand() {
   return (
-    <Link className="brand" to="/" aria-label="Daywell home">
+    <Link className="brand" to="/" aria-label="Wellness Tracker home">
       <img
         className="brand-mark"
         src={`${import.meta.env.BASE_URL}brand-mark.svg`}
@@ -9,9 +9,7 @@ export function Brand() {
         height="35"
         alt=""
       />
-      <span>
-        daywell<span className="brand-dot">.</span>
-      </span>
+      <span>Wellness Tracker</span>
     </Link>
   );
 }

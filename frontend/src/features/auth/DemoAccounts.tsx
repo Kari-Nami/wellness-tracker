@@ -36,7 +36,7 @@ export function DemoAccounts({
   return (
     <section className="demo-accounts" aria-labelledby="demo-accounts-heading">
       <div className="demo-accounts-heading">
-        <h3 id="demo-accounts-heading">Try Daywell</h3>
+        <h3 id="demo-accounts-heading">Try Wellness Tracker</h3>
         <span>{isDemoMode ? 'Sample workspace' : 'Shared demo accounts'}</span>
       </div>
       <p>Choose an account to fill the form, then sign in.</p>

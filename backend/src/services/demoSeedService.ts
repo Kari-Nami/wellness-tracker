@@ -118,8 +118,9 @@ export async function seedDemoAccounts() {
   await initializeDb();
   for (let profile = 0; profile < DEMO_ACCOUNTS.length; profile++) {
     const demo = DEMO_ACCOUNTS[profile];
-    let account = await User.findOne({ email: demo.email });
-    if (account && account.demoKey !== demo.key)
+    const addressOwner = await User.findOne({ email: demo.email });
+    let account = await User.findOne({ demoKey: demo.key });
+    if (addressOwner && addressOwner.demoKey !== demo.key)
       throw new Error(
         'A demo address belongs to an existing personal account. No data was changed for that account.',
       );
@@ -142,6 +143,10 @@ export async function seedDemoAccounts() {
     await withUserTransaction(String(account._id), async (user, session) => {
       if (user.demoKey !== demo.key || user.role !== demo.role)
         throw new Error('Demo seeds are limited to their marked accounts.');
+      if (user.email !== demo.email) {
+        user.email = demo.email;
+        await user.save({ session });
+      }
       if (demo.role === 'admin') return;
       const today = todayInZone(user.timezone);
       if (!user.demoHabitIds.length) {

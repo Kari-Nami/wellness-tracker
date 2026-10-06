@@ -21,12 +21,12 @@ Configuration is ignored and protected with file mode 600. Re-running setup pres
 
 Register a member account through the UI, or choose one of the shared demos on the login screen. Autofill does not submit the form; press Sign in afterward. All demos use `wellness123`.
 
-| Account            | Email                       | Access                                                |
-| ------------------ | --------------------------- | ----------------------------------------------------- |
-| Alex Morgan        | alex@demo.daywell.example   | Member with varied history                            |
-| Maya Chen          | maya@demo.daywell.example   | Member with consistent habits and a thirty-day streak |
-| Jordan Lee         | jordan@demo.daywell.example | Member with mixed daily progress                      |
-| Demo administrator | admin@demo.daywell.example  | Point-rule administration                             |
+| Account            | Email                        | Access                                                |
+| ------------------ | ---------------------------- | ----------------------------------------------------- |
+| Alex Morgan        | alex@demo.wellness.example   | Member with varied history                            |
+| Maya Chen          | maya@demo.wellness.example   | Member with consistent habits and a thirty-day streak |
+| Jordan Lee         | jordan@demo.wellness.example | Member with mixed daily progress                      |
+| Demo administrator | admin@demo.wellness.example  | Point-rule administration                             |
 
 The member demos include ninety days of sample check-ins, meal descriptions, habits, awards, and insights. They are shared accounts, so visitors see one another's changes. Re-running `npm run seed -- demo` preserves saved records and backfills missing sample dates. Use a personal account for your own entries. The operator credentials are ADMIN_EMAIL and ADMIN_PASSWORD in `backend/.env.docker.local`. Existing operator passwords are preserved by the seed. You can also use the existing local review member `local-review@example.com`, password `local-review-2026`, in the current test database. This account is local test data and is not seeded into other environments.
 
@@ -80,4 +80,4 @@ Open `http://localhost:5173`. Native development uses a separate loopback MongoD
 
 ## Verified implementation
 
-On October 8, 2026, 29 frontend tests, 16 backend unit tests, 21 real MongoDB integration tests, both production builds, routing-renderer tests, authenticated Docker startup, HTTP stack smoke, browser session/check-in persistence, desktop/mobile screenshot review, and a local backup/restore round trip passed. Hosted CI and VM acceptance require the later repository publication and owner deployment.
+On October 8, 2026, 29 frontend tests, 16 backend unit tests, 22 real MongoDB integration tests, both production builds, routing-renderer tests, authenticated Docker startup, HTTP stack smoke, browser session/check-in persistence, desktop/mobile screenshot review, and a local backup/restore round trip passed. Hosted CI and VM acceptance require the later repository publication and owner deployment.

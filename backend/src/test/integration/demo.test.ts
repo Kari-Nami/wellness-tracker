@@ -118,3 +118,25 @@ it('refuses to modify an unmarked account with a matching public demo address', 
   expect((await User.findById(personal.user.id))?.demoKey).toBeUndefined();
   expect(await Habit.countDocuments()).toBe(0);
 });
+
+it('updates renamed demo addresses without replacing accounts, passwords, or saved history', async () => {
+  await seedDemoAccounts();
+  const before = await User.find({ demoKey: { $exists: true } })
+    .select('+passwordHash')
+    .lean();
+  const history = await DailyCheckIn.find({}).sort({ _id: 1 }).lean();
+  for (const user of before)
+    await User.updateOne(
+      { _id: user._id },
+      { $set: { email: user.email.replace('wellness', 'previous-brand') } },
+    );
+  await seedDemoAccounts();
+  expect(await User.countDocuments()).toBe(4);
+  for (const user of before) {
+    const after = await User.findById(user._id).select('+passwordHash');
+    expect(after?.email).toBe(user.email);
+    expect(after?.passwordHash).toBe(user.passwordHash);
+    expect(after?.displayName).toBe(user.displayName);
+  }
+  expect(await DailyCheckIn.find({}).sort({ _id: 1 }).lean()).toEqual(history);
+});

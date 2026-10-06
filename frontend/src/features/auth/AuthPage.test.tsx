@@ -83,7 +83,7 @@ it('signs in to the administrator route only after explicitly submitting the fil
 });
 it('keeps demo shortcuts off the personal registration form', () => {
   page('register');
-  expect(screen.queryByText('Try Daywell')).not.toBeInTheDocument();
+  expect(screen.queryByText('Try Wellness Tracker')).not.toBeInTheDocument();
   expect(
     screen.getByRole('button', { name: 'Create account' }),
   ).toBeInTheDocument();
