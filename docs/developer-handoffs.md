@@ -17,7 +17,7 @@ The complete frontend and backend are implemented and integrated against contrac
 - `src/services/scoringService.ts`, `triggerRegistry.ts`, and `streakService.ts`: trusted triggers, historical award reconciliation, and calendar streaks.
 - `src/services/analyticsSource.ts`: consistent database reads and eligibility inputs.
 - `src/services/insightService.ts` and `leaderboardService.ts`: pure calculations and public-safe ranking.
-- `src/services/pointRuleService.ts` and `seedService.ts`: controlled rule administration and explicit bootstrap.
+- `src/services/pointRuleService.ts`, `seedService.ts`, and `demoSeedService.ts`: controlled rule administration and explicit bootstrap.
 - `src/app/api`: thin route handlers with guards and common HTTP responses.
 - `src/test/integration`: isolated database tests for authentication, CRUD, scoring, analytics, privacy, and concurrency.
 
@@ -27,6 +27,6 @@ Keep model documents inside backend services. Return serialized DTOs rather than
 
 Edit `contracts/wellness.ts` for agreed API changes, then run `npm run contracts:sync`. Keep app-local copies generated. Analytics inputs in `backend/src/types/analytics.ts` preserve the separation between database access and calculations.
 
-Deployment remains three application services: frontend, backend, and private MongoDB. The temporary local gateway and operations tooling are optional development/maintenance services. Existing host Nginx and Certbot own public ingress on the VM. Follow `docs/deployment.md` before changing routing, database topology, or credentials.
+Deployment remains three application services: frontend, backend, and private MongoDB. The temporary local `temp-gateway` and operations tooling are optional development/maintenance services. Existing host Nginx and Certbot own public ingress on the VM. Follow `docs/deployment.md` before changing routing, database topology, or credentials.
 
 The project owner performs final local acceptance and deploys to the VM. No publication or VM changes have been performed as part of implementation.

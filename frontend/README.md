@@ -11,7 +11,7 @@ npm ci
 npm run dev:demo
 ```
 
-Open `http://127.0.0.1:5173` and choose **Explore demo** or **Admin preview**. Sample accounts use `alex@example.com` and `admin@example.com`, with password `wellness123`. Registration opens an empty sample workspace. Demo data persists in local browser storage; the demo session belongs to the current tab.
+Open `http://127.0.0.1:5173` and choose a sample account to fill the form, then press **Sign in**. Sample accounts use `alex@example.com` and `admin@example.com`, with password `wellness123`. Registration opens an empty sample workspace. Demo data persists in local browser storage; the demo session belongs to the current tab.
 
 For the real backend, use `npm run dev`. Real API mode is the default. Copy `.env.example` to `.env.local` to change the public prefix or backend proxy target. Keep APP_ORIGIN on the backend consistent with the browser origin.
 
@@ -23,7 +23,7 @@ npm run build
 npm run build:demo
 ```
 
-All requests go through the typed client, include cookie credentials, and validate the response envelope. Production does not bundle the demo transport or sample accounts. There is no JWT in browser storage.
+All requests go through the typed client, include cookie credentials, and validate the response envelope. Production does not bundle the device-local mock transport. It intentionally displays the public seeded member and administrator credentials. Set `VITE_SHOW_DEMO_ACCOUNTS=false` to hide this panel in a new build. There is no JWT in browser storage.
 
 ## Docker
 

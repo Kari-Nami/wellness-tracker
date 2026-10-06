@@ -679,30 +679,112 @@ textarea.input {
 .mobile-brand {
   display: none;
 }
-.demo-entry {
-  margin-top: 25px;
-  padding: 18px;
-  background: #f7f9f4;
-  border: 1px dashed #d3ddcb;
-  border-radius: 10px;
-  text-align: center;
+.demo-accounts {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
 }
-.demo-entry p {
-  font-size: 11px;
-  color: #5e7056;
-  margin-bottom: 12px;
-}
-.demo-entry > div {
+.demo-accounts-heading {
   display: flex;
-  justify-content: center;
-  gap: 4px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
-.demo-entry > span {
+.demo-accounts-heading h3 {
+  font-family: 'Fraunces Variable', serif;
+  font-size: 20px;
+  font-weight: 450;
+  letter-spacing: -0.3px;
+}
+.demo-accounts-heading > span {
+  font-size: 9px;
+  color: var(--muted);
+}
+.demo-accounts > p {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-top: 6px;
+}
+.demo-account-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+.demo-account {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  background: #f8faf6;
+  border: 1px solid #dfe7d8;
+  border-radius: 9px;
+  text-align: left;
+  cursor: pointer;
+  color: #263e36;
+  min-width: 0;
+}
+.demo-account:hover {
+  background: #edf3e9;
+  border-color: #b9caae;
+}
+.demo-account[aria-pressed='true'] {
+  background: #edf3e9;
+  border-color: var(--green);
+}
+.demo-account:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.demo-account-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.demo-account-title strong {
+  font-size: 11px;
+  font-weight: 700;
+}
+.demo-account-title > span {
+  font-size: 8px;
+  color: var(--muted);
+}
+.demo-account code {
   display: block;
   font-size: 9px;
-  color: #5e7056;
-  line-height: 1.8;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+  color: #345c4c;
+}
+.demo-account-description {
+  font-size: 10px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.demo-account-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 650;
+  color: var(--green);
+  margin-top: auto;
+  padding-top: 4px;
+}
+.demo-accounts .demo-account-password {
   margin-top: 12px;
+  color: #263e36;
+}
+.demo-account-password code {
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--green);
+  user-select: all;
+}
+.demo-accounts .demo-account-shared {
+  font-size: 9px;
 }
 .app-header {
   background: #fff;
@@ -2973,4 +3055,18 @@ textarea.input {
 }
 .point-row strong {
   flex-shrink: 0;
+}
+@media (max-width: 420px) {
+  .demo-account-grid {
+    grid-template-columns: 1fr;
+  }
+  .demo-account code {
+    font-size: 11px;
+  }
+  .demo-account-title strong {
+    font-size: 12px;
+  }
+  .demo-account-description {
+    font-size: 11px;
+  }
 }

@@ -27,7 +27,9 @@ docker compose --env-file /opt/wellness-tracker/.env.production \
   run --rm --build tools npm run seed -- all
 ```
 
-Use `rules` or `admin` instead of `all` to run one seed. Rule seeds preserve existing enabled flags, values, and timestamps. They recreate missing defaults, including rules intentionally deleted through the UI, so do not run them on every update. Operator bootstrap creates or promotes the requested account, hides it from the leaderboard, and preserves the password of an existing account. No default production passwords are embedded. The tooling container exits after the command and is outside the normal three-service runtime.
+Use `rules`, `admin`, or `demo` instead of `all` to run a specific seed. `demo` creates three public member accounts with ninety days of sample history and the shared administrator. `all` also includes those demos. Public demo credentials are listed on the login page. Existing demo records and habit edits are preserved on repeat seeds. Rule seeds preserve existing enabled flags, values, and timestamps. They recreate missing defaults, including rules intentionally deleted through the UI, so do not run them on every update. Operator bootstrap creates or promotes the requested account, hides it from the leaderboard, and preserves the password of an existing account. No default production passwords are embedded. SHOW_DEMO_ACCOUNTS controls the login credential panel at build time and defaults to true. Set it to false and rebuild frontend to hide the panel; this does not remove seeded accounts.
+
+The tooling container exits after the command and is outside the normal three-service runtime.
 
 ## Existing host Nginx
 

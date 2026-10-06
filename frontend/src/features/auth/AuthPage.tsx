@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -20,7 +20,8 @@ import {
   type RegisterInput,
 } from '../../types/contracts';
 import { detectedTimezone } from '../../lib/dates';
-import { isDemoMode } from '../../config/mode';
+import { showDemoAccounts } from '../../config/mode';
+import { DemoAccounts } from './DemoAccounts';
 import { useAuth } from './context';
 import { Brand } from '../../components/ui/Brand';
 import { Button } from '../../components/ui/Button';
@@ -32,7 +33,6 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
   const location = useLocation();
   const [visible, setVisible] = useState(false);
   const [error, setError] = useState('');
-  const [demoPending, setDemoPending] = useState(false);
   const schema = registerMode ? registerInputSchema : loginInputSchema;
   const form = useForm<RegisterInput | LoginInput>({
     resolver: zodResolver(schema),
@@ -44,6 +44,10 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
           timezone: detectedTimezone(),
         }
       : { email: '', password: '' },
+  });
+  const [selectedEmail, selectedPassword] = useWatch({
+    control: form.control,
+    name: ['email', 'password'],
   });
   if (auth.user)
     return (
@@ -78,21 +82,6 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
       finish(user.role);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Please try again.');
-    }
-  }
-  async function demo(role: 'user' | 'admin') {
-    setDemoPending(true);
-    setError('');
-    try {
-      const user = await auth.login({
-        email: role === 'admin' ? 'admin@example.com' : 'alex@example.com',
-        password: 'wellness123',
-      });
-      finish(user.role);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Please try again.');
-    } finally {
-      setDemoPending(false);
     }
   }
   const errors = form.formState.errors;
@@ -262,7 +251,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
               type="submit"
               className="auth-submit"
               loading={form.formState.isSubmitting}
-              disabled={auth.loading || demoPending}
+              disabled={auth.loading}
             >
               {registerMode ? 'Create account' : 'Sign in'}
               <ArrowRight size={16} />
@@ -274,35 +263,22 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
               {registerMode ? 'Sign in' : 'Create an account'}
             </Link>
           </p>
-          {isDemoMode && (
-            <div className="demo-entry">
-              <p>Take a look around with sample data.</p>
-              <div>
-                <Button
-                  variant="secondary"
-                  loading={demoPending}
-                  disabled={form.formState.isSubmitting || auth.loading}
-                  onClick={() => void demo('user')}
-                >
-                  Explore demo <ArrowRight size={14} />
-                </Button>
-                <Button
-                  variant="ghost"
-                  disabled={demoPending || auth.loading}
-                  onClick={() => void demo('admin')}
-                >
-                  Admin preview
-                </Button>
-              </div>
-              <span>
-                Demo accounts: alex@example.com or admin@example.com
-                <br />
-                Password: wellness123
-              </span>
-            </div>
+          {!registerMode && showDemoAccounts && (
+            <DemoAccounts
+              selectedEmail={selectedEmail ?? ''}
+              selectedPassword={selectedPassword ?? ''}
+              disabled={form.formState.isSubmitting || auth.loading}
+              onSelect={(credentials) => {
+                form.reset(credentials);
+                setVisible(false);
+                setError('');
+                form.setFocus('email');
+              }}
+            />
           )}
           <p className="auth-privacy">
-            <ShieldCheck size={13} /> Your personal wellness data is private.
+            <ShieldCheck size={13} /> Personal accounts keep your wellness data
+            private.
           </p>
         </div>
         <p className="auth-bottom">

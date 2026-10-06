@@ -17,9 +17,9 @@ docker compose --env-file backend/.env.docker.local \
   --profile operations run --rm --build tools npm run seed -- all
 ```
 
-Open [Daywell locally](http://localhost:18081/wellness/). Register a member account. Operator login uses ADMIN_EMAIL and ADMIN_PASSWORD from the generated, ignored `backend/.env.docker.local` file. The setup command generates random secrets, writes files with mode 600, and preserves existing configuration.
+Open [Daywell locally](http://localhost:18081/wellness/). Register a member account. The sign-in screen shows shared demo credentials and buttons that fill the form. Three member demos include 90 days of varied history; a demo administrator opens the point-rule editor. All four use password `wellness123`. Your separate operator login uses ADMIN_EMAIL and ADMIN_PASSWORD from the generated, ignored `backend/.env.docker.local` file. The setup command generates random secrets, writes files with mode 600, and preserves existing configuration.
 
-The local stack runs the production builds with authenticated MongoDB, a single-member replica set, and a gateway simulating host Nginx. MongoDB is private; published ports bind to loopback. Use localhost consistently for local Secure cookies. Public deployment uses HTTPS.
+The local stack runs the production builds with authenticated MongoDB, a single-member replica set, and a `temp-gateway` service simulating host Nginx. MongoDB is private; published ports bind to loopback. Use localhost consistently for local Secure cookies. Public deployment uses HTTPS.
 
 See [local testing](docs/local-testing.md) for acceptance steps, native development, and stop/restart commands. The project owner performs final acceptance and VM deployment.
 
@@ -41,7 +41,7 @@ Checks cover synchronized contracts, lint, strict types, tests, and formatting. 
 npm run dev:demo --prefix frontend
 ```
 
-The optional demo at `http://127.0.0.1:5173` uses device-local sample data. Demo accounts are `alex@example.com` and `admin@example.com`, password `wellness123`. New registrations start empty. Normal development and production use the real API and exclude the sample transport and credentials.
+The optional demo at `http://127.0.0.1:5173` uses device-local sample data. Demo accounts are `alex@example.com` and `admin@example.com`, password `wellness123`. New registrations start empty. Normal development and production use the real API and exclude the local mock transport. The public credentials for seeded demo accounts are intentionally displayed in real API mode.
 
 ## Project references
 

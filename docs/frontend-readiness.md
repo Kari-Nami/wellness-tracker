@@ -21,9 +21,9 @@ The frontend is complete against contract v1 and integrated with the persistent 
 
 Verified on October 8, 2026:
 
-- Frontend lint, strict type checks, formatting, and 26 focused tests pass.
-- Both applications' root checks pass, including 16 backend unit tests, 18 isolated MongoDB integration tests, and contract synchronization.
-- Real production frontend build passes and excludes the demo storage identifiers, sample names, and sample credentials.
+- Frontend lint, strict type checks, formatting, and 29 focused tests pass.
+- Both applications' root checks pass, including 16 backend unit tests, 21 isolated MongoDB integration tests, and contract synchronization.
+- Real production frontend build passes and excludes the device-local mock storage and transport. Public seeded demo credentials are intentionally included in the login panel.
 - Desktop and mobile screenshots were captured and inspected for every required screen. Mobile layouts were checked at 375 CSS pixels with no horizontal page overflow. Desktop review covered 1309 and 1440 CSS pixels.
 - Calendar selection, demo member/admin login, account switching, and saving an existing admin rule were checked through the preview.
 - A compiled Docker demo ran behind a temporary Nginx ingress at `/webdev/wellness-tracker`. All frontend routes returned the SPA, static assets and icons returned the correct MIME types, missing assets returned 404, and a browser login reached the prefixed Today route with populated data.
@@ -36,7 +36,7 @@ The production Docker images were built and tested behind a local gateway at `/w
 
 A browser registered a real member, saved all nine fields, received 18 points, and retained the saved record after reload and a backend restart. Real insights matched the saved readings and points. Sparse-history review found and corrected invisible isolated readings by adding chart markers. Desktop and mobile screenshots were inspected; the mobile layout had no horizontal overflow. Browser security headers remain compatible with the application.
 
-Screenshots are ignored local artifacts in `frontend/screenshots/`, including `real-stack-today.jpg` and `real-stack-insights-mobile.jpg`. Production excludes demo data. The interface uses same-origin cookie authentication throughout.
+Screenshots are ignored local artifacts in `frontend/screenshots/`, including `real-stack-today.jpg` and `real-stack-insights-mobile.jpg`. Production excludes mock transport; real seeded demo histories live in MongoDB. The login panel displays credentials and fills the form without submitting it. The interface uses same-origin cookie authentication throughout.
 
 ## Acceptance
 

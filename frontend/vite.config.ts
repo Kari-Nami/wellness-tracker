@@ -9,6 +9,9 @@ export default defineConfig(({ mode }) => {
     base: `${basePath}/`,
     plugins: [react(), tailwindcss()],
     define: {
+      'import.meta.env.VITE_SHOW_DEMO_ACCOUNTS': JSON.stringify(
+        env.VITE_SHOW_DEMO_ACCOUNTS ?? 'true',
+      ),
       'import.meta.env.VITE_API_MODE': JSON.stringify(
         env.VITE_API_MODE ?? (mode === 'demo' ? 'mock' : 'real'),
       ),
