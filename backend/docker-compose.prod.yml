@@ -79,7 +79,6 @@ services:
       ADMIN_EMAIL: ${ADMIN_EMAIL:-}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
       ADMIN_DISPLAY_NAME: ${ADMIN_DISPLAY_NAME:-Administrator}
-      ADMIN_TIMEZONE: ${ADMIN_TIMEZONE:-UTC}
     depends_on:
       mongo:
         condition: service_healthy

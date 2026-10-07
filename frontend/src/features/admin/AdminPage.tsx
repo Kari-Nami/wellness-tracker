@@ -2,14 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  ShieldCheck,
-  Info,
-  SlidersHorizontal,
-} from 'lucide-react';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { queryKeys } from '../../api/queryKeys';
 import {
@@ -18,7 +11,6 @@ import {
   type PointRuleDto,
   type PointTriggerDto,
 } from '../../types/contracts';
-import { PageHeading } from '../../components/ui/PageHeading';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
 import { Field } from '../../components/ui/Field';
@@ -90,39 +82,7 @@ export function AdminPage() {
   }
   return (
     <>
-      <PageHeading
-        eyebrow="ADMINISTRATION"
-        title="Recognize daily consistency."
-        description="Manage global point values for supported tracking activities."
-        action={
-          <Button
-            disabled={
-              loading ||
-              !!rules.error ||
-              !!triggers.error ||
-              !available.length ||
-              !!pending
-            }
-            onClick={() => {
-              setEditing(null);
-              setOpen(true);
-            }}
-          >
-            <Plus size={15} />
-            Add point rule
-          </Button>
-        }
-      />
-      <div className="admin-notice">
-        <ShieldCheck size={20} />
-        <div>
-          <strong>Historical points stay as they were.</strong>
-          <p>
-            Rule changes apply to future qualifying activity. Existing valid
-            awards keep their original values.
-          </p>
-        </div>
-      </div>
+      <h1 className="sr-only">Point rules</h1>
       {loading ? (
         <LoadingState label="Loading point configuration..." />
       ) : rules.error || triggers.error ? (
@@ -135,32 +95,27 @@ export function AdminPage() {
         />
       ) : (
         <>
-          <div className="admin-overview">
-            <span>
-              <strong>{rules.data?.length ?? 0}</strong>Configured rules
-            </span>
-            <span>
-              <strong>
-                {rules.data?.filter((r) => r.enabled).length ?? 0}
-              </strong>
-              Enabled
-            </span>
-            <span>
-              <strong>{available.length}</strong>Available activities
-            </span>
-            <span className="badge badge-neutral">
-              <SlidersHorizontal size={13} />
-              Supported daily activities
-            </span>
-          </div>
           <section className="panel rules-panel">
             <div className="panel-heading">
               <div>
                 <h2>Point rules</h2>
-                <p className="panel-subtitle">
-                  One rule per activity. Awards range from 0 to 100 points.
-                </p>
               </div>
+              <Button
+                disabled={
+                  loading ||
+                  !!rules.error ||
+                  !!triggers.error ||
+                  !available.length ||
+                  !!pending
+                }
+                onClick={() => {
+                  setEditing(null);
+                  setOpen(true);
+                }}
+              >
+                <Plus size={15} />
+                Add point rule
+              </Button>
             </div>
             {rules.data?.length ? (
               <>
@@ -255,13 +210,6 @@ export function AdminPage() {
               />
             )}
           </section>
-          {!available.length && (
-            <p className="admin-registry-note">
-              <Info size={13} />
-              Every supported activity already has a rule. Edit an existing rule
-              to change its value.
-            </p>
-          )}
           {error && !deleting && (
             <p className="form-error admin-feedback" role="alert">
               {error}

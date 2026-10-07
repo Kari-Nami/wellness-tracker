@@ -18,7 +18,7 @@ try {
       email: ADMIN_EMAIL,
       password: ADMIN_PASSWORD,
       displayName: process.env.ADMIN_DISPLAY_NAME ?? 'Administrator',
-      timezone: process.env.ADMIN_TIMEZONE ?? 'UTC',
+      timezone: 'Asia/Bangkok',
     });
   }
   if (mode === 'rules' || mode === 'demo' || mode === 'all')

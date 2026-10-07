@@ -32,13 +32,12 @@ export const triggerDefinitions: PointTriggerDto[] = [
   {
     key: 'HABIT_COMPLETE',
     label: 'Complete a daily habit',
-    description: 'Awarded once for each completed, eligible habit.',
+    description: 'Awarded once per completed daily habit.',
   },
   {
     key: 'ALL_DAILY_HABITS_COMPLETE',
     label: 'Complete all daily habits',
-    description:
-      'Complete every eligible habit on a day with at least one habit.',
+    description: 'Complete every daily habit, with at least one habit.',
   },
   {
     key: 'WATER_GOAL_REACHED',
@@ -77,7 +76,7 @@ export function createDemoDatabase(): DemoDatabase {
     displayName: 'Alex Morgan',
     role: 'user',
     timezone,
-    goals: { ...DEFAULT_GOALS },
+    goals: { ...DEFAULT_GOALS, sleepHours: 8, waterMl: 2000, mealsPerDay: 3 },
     leaderboardEnabled: true,
     createdAt,
     updatedAt: now,

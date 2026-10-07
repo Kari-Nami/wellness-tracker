@@ -5,13 +5,17 @@ import {
   type Model,
   type InferSchemaType,
 } from 'mongoose';
-import { DEFAULT_GOALS, bowelStatusSchema } from '../types/contracts';
+import {
+  DEFAULT_GOALS,
+  bowelStatusSchema,
+  THAILAND_TIMEZONE,
+} from '../types/contracts';
 import { DEMO_ACCOUNTS } from '../types/demoAccounts';
 const goals = new Schema(
   {
-    sleepHours: { type: Number, required: true, min: 0, max: 24 },
-    waterMl: { type: Number, required: true, min: 0, max: 10000 },
-    mealsPerDay: { type: Number, required: true, min: 0, max: 10 },
+    sleepHours: { type: Number, default: null, min: 0, max: 24 },
+    waterMl: { type: Number, default: null, min: 0, max: 10000 },
+    mealsPerDay: { type: Number, default: null, min: 0, max: 10 },
     targetMood: { type: Number, default: null, enum: [1, 2, 3, 4, 5] },
     targetBowelStatus: {
       type: String,
@@ -38,7 +42,7 @@ const schema = new Schema(
       default: 'user',
       required: true,
     },
-    timezone: { type: String, required: true },
+    timezone: { type: String, required: true, default: THAILAND_TIMEZONE },
     goals: {
       type: goals,
       default: () => ({ ...DEFAULT_GOALS }),

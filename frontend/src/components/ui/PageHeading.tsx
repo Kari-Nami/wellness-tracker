@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 export function PageHeading({
-  eyebrow,
   title,
   description,
   action,
@@ -11,11 +10,10 @@ export function PageHeading({
   action?: ReactNode;
 }) {
   return (
-    <header className="page-heading">
+    <header className="page-heading compact-heading">
       <div>
-        <p className="eyebrow">{eyebrow}</p>
-        <h1>{title}</h1>
-        <p className="page-description">{description}</p>
+        <h1 className="sr-only">{title}</h1>
+        {description && <p className="page-description">{description}</p>}
       </div>
       {action && <div className="heading-action">{action}</div>}
     </header>

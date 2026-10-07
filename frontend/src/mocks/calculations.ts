@@ -60,11 +60,16 @@ export function reconcile(
     const keys = new Map<string, TriggerKey>();
     if (record.completion === 'complete')
       keys.set('DAILY_CHECKIN_COMPLETE', 'DAILY_CHECKIN_COMPLETE');
-    if (record.waterMl !== null && record.waterMl >= user.goals.waterMl)
+    if (
+      user.goals.waterMl !== null &&
+      record.waterMl !== null &&
+      record.waterMl >= user.goals.waterMl
+    )
       keys.set('WATER_GOAL_REACHED', 'WATER_GOAL_REACHED');
     if (
+      user.goals.sleepHours !== null &&
       record.sleep.durationMinutes !== null &&
-      record.sleep.durationMinutes >= user.goals.sleepHours * 60
+      record.sleep.durationMinutes >= user.goals.sleepHours! * 60
     )
       keys.set('SLEEP_GOAL_REACHED', 'SLEEP_GOAL_REACHED');
     if (record.alcoholStatus !== null)
@@ -170,15 +175,21 @@ export function demoInsights(
     completeDayCount: complete,
     summary: {
       averageSleepMinutes: average(sleep),
-      sleepGoalRate: rate(
-        sleep.filter((v) => v >= user.goals.sleepHours * 60).length,
-        sleep.length,
-      ),
+      sleepGoalRate:
+        user.goals.sleepHours === null
+          ? null
+          : rate(
+              sleep.filter((v) => v >= user.goals.sleepHours! * 60).length,
+              sleep.length,
+            ),
       averageWaterMl: average(water),
-      waterGoalRate: rate(
-        water.filter((v) => v >= user.goals.waterMl).length,
-        water.length,
-      ),
+      waterGoalRate:
+        user.goals.waterMl === null
+          ? null
+          : rate(
+              water.filter((v) => v >= user.goals.waterMl!).length,
+              water.length,
+            ),
       averageMood: average(mood),
       checkInCompletionRate: rate(complete, days.length),
       habitCompletionRate: rate(

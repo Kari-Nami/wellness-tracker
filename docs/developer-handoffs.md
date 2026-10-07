@@ -1,10 +1,10 @@
 # Developer map
 
-The complete frontend and backend are implemented and integrated against contract v1. Future changes should preserve these boundaries and include verification appropriate to the affected behavior.
+The complete frontend and backend are implemented and integrated against contract v2. Future changes should preserve these boundaries and include verification appropriate to the affected behavior.
 
 ## Frontend
 
-`frontend/src/api` validates envelopes and DTOs. Authentication and private-query cleanup live in `features/auth`; shared navigation and unsaved-change handling live in `components/layout` and `app`. Feature folders own check-ins, calendar, insights, leaderboard, profile, habits, and administration. `components/charts/TrendChart.tsx` preserves unlogged gaps and marks isolated readings. The SVG identity and browser icons live in `public`.
+`frontend/src/api` validates envelopes and DTOs. Authentication and private-query cleanup live in `features/auth`; shared navigation and unsaved-change handling live in `components/layout` and `app`. Feature folders own check-ins, calendar, insights, leaderboard, profile autosave, habits, and administration. `components/charts/TrendChart.tsx` preserves unlogged gaps and marks isolated readings. The SVG identity and browser icons live in `public`.
 
 `frontend/src/mocks` supplies the explicit demo mode only. Keep mock behavior compatible with the API contract, but treat the backend as the authority for authentication, awards, and metrics. Production must never fall back to mocks.
 

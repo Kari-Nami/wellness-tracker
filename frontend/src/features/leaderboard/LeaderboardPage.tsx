@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Trophy, Flame, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react';
+import { Trophy, Flame, ShieldCheck, ArrowRight } from 'lucide-react';
 import { leaderboardApi } from '../../api/leaderboard';
 import { queryKeys } from '../../api/queryKeys';
 import { useAuth } from '../auth/context';
@@ -18,13 +18,12 @@ export function LeaderboardPage() {
     queryFn: ({ signal }) => leaderboardApi.list(signal),
   });
   const rows = query.data ?? [];
-  const own = rows.find((r) => r.isCurrentUser);
   return (
     <>
       <PageHeading
-        eyebrow="CONSISTENCY, TOGETHER"
-        title="Small steps add up."
-        description="A little shared motivation for showing up, day after day."
+        eyebrow="CONSISTENCY TOGETHER"
+        title="Leaderboard"
+        description="Compare all-time points and current streaks."
         action={
           <span className="badge badge-neutral">
             <Trophy size={13} />
@@ -61,43 +60,6 @@ export function LeaderboardPage() {
         </section>
       ) : (
         <>
-          <div className="leaderboard-highlights">
-            {rows.slice(0, 3).map((row) => (
-              <section
-                className={`panel leader-highlight place-${row.rank} ${row.isCurrentUser ? 'highlight-own' : ''}`}
-                key={row.rank}
-              >
-                <div className="leader-highlight-top">
-                  <span className="leader-place">
-                    <Trophy size={13} />
-                    {row.rank === 1
-                      ? 'Leading the way'
-                      : row.rank === 2
-                        ? 'Building momentum'
-                        : 'Showing up'}
-                  </span>
-                  <span>#{row.rank}</span>
-                </div>
-                <div className="leader-highlight-person">
-                  <span className="avatar">{initials(row.displayName)}</span>
-                  <div>
-                    <h2>
-                      {row.displayName}
-                      {row.isCurrentUser && <span className="badge">You</span>}
-                    </h2>
-                    <p>
-                      <Flame size={12} />
-                      {row.currentStreak}-day streak
-                    </p>
-                  </div>
-                </div>
-                <strong>
-                  {row.points.toLocaleString()}
-                  <span>points</span>
-                </strong>
-              </section>
-            ))}
-          </div>
           <div className="leaderboard-layout">
             <section className="panel leaderboard-table">
               <div className="panel-heading">
@@ -107,7 +69,7 @@ export function LeaderboardPage() {
                     {rows.length} people, making time for themselves.
                   </p>
                 </div>
-                <Sparkles size={18} />
+                <Flame size={18} />
               </div>
               <table>
                 <caption className="sr-only">
@@ -124,7 +86,7 @@ export function LeaderboardPage() {
                 <tbody>
                   {rows.map((row) => (
                     <tr
-                      className={row.isCurrentUser ? 'current-user-row' : ''}
+                      className={`leader-rank-${row.rank} ${row.isCurrentUser ? 'current-user-row' : ''}`}
                       key={row.rank}
                     >
                       <td>
@@ -151,7 +113,9 @@ export function LeaderboardPage() {
                         <span className="streak-cell">
                           <Flame size={12} />
                           {row.currentStreak}
-                          <span className="table-unit"> days</span>
+                          <span className="table-unit">
+                            {row.currentStreak === 1 ? ' day' : ' days'}
+                          </span>
                         </span>
                       </td>
                     </tr>
@@ -159,44 +123,6 @@ export function LeaderboardPage() {
                 </tbody>
               </table>
             </section>
-            <aside className="leaderboard-sidebar">
-              {own && (
-                <section className="panel your-place">
-                  <p className="eyebrow">YOUR LITTLE MOMENTUM</p>
-                  <div className="your-rank">
-                    #{own.rank}
-                    <span>Your current place</span>
-                  </div>
-                  <div className="your-place-details">
-                    <span>
-                      <strong>{own.points.toLocaleString()}</strong>All-time
-                      points
-                    </span>
-                    <span>
-                      <strong>{own.currentStreak}</strong>Day streak
-                    </span>
-                  </div>
-                  <Link className="button button-primary" to="/today">
-                    Keep showing up <ArrowRight size={14} />
-                  </Link>
-                </section>
-              )}
-              <section className="leaderboard-privacy">
-                <ShieldCheck size={25} />
-                <h3>
-                  A little motivation.
-                  <br />
-                  Your privacy, always.
-                </h3>
-                <p>
-                  The board shares display names, points, and streaks. Your
-                  personal wellness entries stay with you.
-                </p>
-                <Link className="text-link" to="/profile">
-                  Your preferences <ArrowRight size={13} />
-                </Link>
-              </section>
-            </aside>
           </div>
           <p className="leaderboard-footnote">
             Points celebrate logging and consistency. This is a little

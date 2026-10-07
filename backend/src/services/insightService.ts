@@ -87,17 +87,24 @@ export function computeInsights(source: InsightSource): InsightsDto {
     completeDayCount,
     summary: {
       averageSleepMinutes: average(days.map((d) => d.sleepMinutes)),
-      sleepGoalRate: rate(
-        loggedSleep.filter(
-          (d) => d.sleepMinutes! >= source.goals.sleepHours * 60,
-        ).length,
-        loggedSleep.length,
-      ),
+      sleepGoalRate:
+        source.goals.sleepHours === null
+          ? null
+          : rate(
+              loggedSleep.filter(
+                (d) => d.sleepMinutes! >= source.goals.sleepHours! * 60,
+              ).length,
+              loggedSleep.length,
+            ),
       averageWaterMl: average(days.map((d) => d.waterMl)),
-      waterGoalRate: rate(
-        loggedWater.filter((d) => d.waterMl! >= source.goals.waterMl).length,
-        loggedWater.length,
-      ),
+      waterGoalRate:
+        source.goals.waterMl === null
+          ? null
+          : rate(
+              loggedWater.filter((d) => d.waterMl! >= source.goals.waterMl!)
+                .length,
+              loggedWater.length,
+            ),
       averageMood: average(days.map((d) => d.mood)),
       checkInCompletionRate: rate(completeDayCount, days.length),
       habitCompletionRate: rate(

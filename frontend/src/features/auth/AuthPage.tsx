@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -15,11 +15,12 @@ import {
 } from 'lucide-react';
 import {
   loginInputSchema,
+  DEFAULT_GOALS,
   registerInputSchema,
   type LoginInput,
   type RegisterInput,
 } from '../../types/contracts';
-import { detectedTimezone } from '../../lib/dates';
+import { TargetFields } from '../profile/TargetFields';
 import { showDemoAccounts } from '../../config/mode';
 import { DemoAccounts } from './DemoAccounts';
 import { useAuth } from './context';
@@ -41,7 +42,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
           email: '',
           password: '',
           displayName: '',
-          timezone: detectedTimezone(),
+          goals: { ...DEFAULT_GOALS },
         }
       : { email: '', password: '' },
   });
@@ -65,7 +66,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
     navigate(
       role === 'admin'
         ? '/admin'
-        : /^\/(today|calendar|insights|leaderboard|profile)(?:[/?]|$)/.test(
+        : /^\/(today|calendar|insights|leaderboard|profile|habits)(?:[/?]|$)/.test(
               from,
             )
           ? from
@@ -226,21 +227,21 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
               </div>
             </Field>
             {registerMode && (
-              <Field
-                label="Timezone"
-                id="timezone"
-                error={
-                  'timezone' in errors ? errors.timezone?.message : undefined
-                }
-                hint="Your daily check-ins follow this timezone."
-              >
-                <input
-                  className="input"
-                  id="timezone"
-                  {...form.register('timezone')}
-                  aria-describedby="timezone-help"
+              <section className="registration-targets">
+                <h3>Personal targets</h3>
+                <p>Leave them blank if you only want to log your day.</p>
+                <Controller
+                  name="goals"
+                  control={form.control}
+                  render={({ field }) => (
+                    <TargetFields
+                      value={field.value ?? DEFAULT_GOALS}
+                      prefix="register-target"
+                      onChange={field.onChange}
+                    />
+                  )}
                 />
-              </Field>
+              </section>
             )}
             {(error || auth.error) && (
               <p className="form-error" role="alert">

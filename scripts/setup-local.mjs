@@ -46,7 +46,6 @@ LOG_LEVEL=info
 ADMIN_EMAIL=operator@example.com
 ADMIN_PASSWORD=${secret()}
 ADMIN_DISPLAY_NAME=Administrator
-ADMIN_TIMEZONE=Asia/Bangkok
 `,
 );
 console.log(

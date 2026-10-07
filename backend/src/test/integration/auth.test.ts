@@ -48,7 +48,7 @@ describe('persistent authentication and profile', () => {
             email: 'MEMBER@example.com',
             password: 'password123',
             displayName: 'Duplicate',
-            timezone: 'UTC',
+            timezone: 'Asia/Bangkok',
           }),
         )
       ).status,
@@ -60,7 +60,7 @@ describe('persistent authentication and profile', () => {
             email: 'other@example.com',
             password: 'password123',
             displayName: 'Other',
-            timezone: 'UTC',
+            timezone: 'Asia/Bangkok',
             role: 'admin',
           }),
         )

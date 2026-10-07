@@ -1,3 +1,4 @@
+import { BowelIcon } from '../../components/ui/BowelIcon';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -7,10 +8,8 @@ import {
   Heart,
   CircleCheck,
   Flame,
-  Sparkles,
   ArrowRight,
   Wine,
-  Activity,
 } from 'lucide-react';
 import { insightsApi } from '../../api/insights';
 import { queryKeys } from '../../api/queryKeys';
@@ -63,8 +62,8 @@ export function InsightsPage() {
     <>
       <PageHeading
         eyebrow="NOTICE YOUR PATTERNS"
-        title="Your days, in perspective."
-        description="A simple look at how you've been feeling and showing up."
+        title="Insights"
+        description="Review your wellness trends."
         action={
           <select
             className="input range-select"
@@ -148,14 +147,20 @@ export function InsightsPage() {
                     ? null
                     : Math.round(summary.averageSleepMinutes),
                 ),
-                note: `${rateLabel(summary.sleepGoalRate)} of logged days met your target`,
+                note:
+                  user!.goals.sleepHours === null
+                    ? 'No sleep target set'
+                    : `${rateLabel(summary.sleepGoalRate)} of logged days met your target`,
                 tone: 'sage',
               },
               {
                 icon: Droplets,
                 label: 'Average water',
                 value: waterLabel(summary.averageWaterMl),
-                note: `${rateLabel(summary.waterGoalRate)} of logged days met your target`,
+                note:
+                  user!.goals.waterMl === null
+                    ? 'No water target set'
+                    : `${rateLabel(summary.waterGoalRate)} of logged days met your target`,
                 tone: 'blue',
               },
               {
@@ -189,7 +194,7 @@ export function InsightsPage() {
           <div className="insight-charts">
             {[
               {
-                title: 'Sleep, day by day',
+                title: 'Sleep trends',
                 description: 'Hours of rest across your selected days.',
                 field: 'sleepMinutes' as const,
                 color: '#7a915f',
@@ -197,10 +202,10 @@ export function InsightsPage() {
                 unit: 'hours',
                 map: (v: number) => v / 60,
                 fmt: (v: number) => `${v.toFixed(1)} hrs`,
-                text: `Average ${sleepLabel(summary.averageSleepMinutes === null ? null : Math.round(summary.averageSleepMinutes))}. Target ${user!.goals.sleepHours} hours.`,
+                text: `Average ${sleepLabel(summary.averageSleepMinutes === null ? null : Math.round(summary.averageSleepMinutes))}. ${user!.goals.sleepHours === null ? '' : `Target ${user!.goals.sleepHours} hours.`}`,
               },
               {
-                title: 'Your hydration rhythm',
+                title: 'Hydration trends',
                 description: 'Small sips add up.',
                 field: 'waterMl' as const,
                 color: '#5d908c',
@@ -208,10 +213,10 @@ export function InsightsPage() {
                 unit: 'liters',
                 map: (v: number) => v / 1000,
                 fmt: (v: number) => `${v.toFixed(2)} L`,
-                text: `Average ${waterLabel(summary.averageWaterMl)}. Target ${waterLabel(user!.goals.waterMl)}.`,
+                text: `Average ${waterLabel(summary.averageWaterMl)}. ${user!.goals.waterMl === null ? '' : `Target ${waterLabel(user!.goals.waterMl)}.`}`,
               },
               {
-                title: 'A little mood perspective',
+                title: 'Mood trends',
                 description: 'Your mood on a five-point scale.',
                 field: 'mood' as const,
                 color: '#a7767c',
@@ -225,7 +230,7 @@ export function InsightsPage() {
                     : `Average mood ${summary.averageMood.toFixed(1)} of 5 across logged days.`,
               },
               {
-                title: 'Consistency, recognized',
+                title: 'Daily points earned',
                 description: 'Points earned for your daily activity.',
                 field: 'pointsEarned' as const,
                 color: '#9b814d',
@@ -240,7 +245,6 @@ export function InsightsPage() {
                 <div className="panel-heading">
                   <div>
                     <h2>{chart.title}</h2>
-                    <p className="panel-subtitle">{chart.description}</p>
                   </div>
                   <span className="chart-unit">{chart.unit}</span>
                 </div>
@@ -270,9 +274,9 @@ export function InsightsPage() {
             <section className="panel panel-pad habit-insights">
               <div className="panel-heading">
                 <div>
-                  <h2>Routines you're building</h2>
+                  <h2>Your habits</h2>
                   <p className="panel-subtitle">
-                    {rateLabel(summary.habitCompletionRate)} of eligible habits
+                    {rateLabel(summary.habitCompletionRate)} of your habits
                     completed.
                   </p>
                 </div>
@@ -290,7 +294,7 @@ export function InsightsPage() {
                       label={`${habit.name} completion`}
                     />
                     <p>
-                      {habit.completedDays} of {habit.eligibleDays} eligible
+                      {habit.completedDays} of {habit.eligibleDays}
                       days
                     </p>
                   </div>
@@ -298,7 +302,7 @@ export function InsightsPage() {
               ) : (
                 <EmptyState
                   title="Make space for a routine"
-                  description="Add a habit in Profile to track its consistency here."
+                  description="Add a habit on the Habits page to track its consistency here."
                 />
               )}
               <div className="insight-streaks">
@@ -307,14 +311,10 @@ export function InsightsPage() {
                   <strong>{summary.currentStreak} days</strong>Current streak
                 </span>
                 <span>
-                  <Sparkles size={16} />
+                  <Flame size={16} />
                   <strong>{summary.longestStreak} days</strong>Longest streak
                 </span>
               </div>
-              <p className="chart-summary">
-                Meal logging: {rateLabel(summary.mealLoggingRate)} of main meal
-                slots recorded.
-              </p>
             </section>
             <div className="distribution-stack">
               <Distribution
@@ -325,7 +325,7 @@ export function InsightsPage() {
               />
               <Distribution
                 title="Bowel movement tracking"
-                icon={<Activity size={17} />}
+                icon={<BowelIcon size={17} />}
                 values={data.bowelDistribution}
                 total={data.dayCount}
               />

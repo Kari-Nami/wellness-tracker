@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-export const CONTRACT_VERSION = '1.0.0';
+export const CONTRACT_VERSION = '2.0.0';
+export const THAILAND_TIMEZONE = 'Asia/Bangkok';
 export const roleSchema = z.enum(['user', 'admin']);
 export const sleepQualitySchema = z.enum(['poor', 'fair', 'good', 'great']);
 export const moodSchema = z.union([
@@ -38,29 +39,22 @@ export const idSchema = z
   .regex(/^[a-f0-9]{24}$/i, 'Invalid record identifier.');
 export const timestampSchema = z.iso.datetime();
 export const localDateSchema = z.iso.date();
-export const timezoneSchema = z.string().refine((value) => {
-  try {
-    new Intl.DateTimeFormat('en', { timeZone: value });
-    return true;
-  } catch {
-    return false;
-  }
-}, 'Use a valid IANA timezone.');
+export const timezoneSchema = z.literal(THAILAND_TIMEZONE);
 const emailSchema = z.string().trim().toLowerCase().pipe(z.email());
 const descriptionSchema = z.string().trim().max(200);
 export const goalsSchema = z
   .object({
-    sleepHours: z.number().min(0).max(24),
-    waterMl: z.number().int().min(0).max(10000),
-    mealsPerDay: z.number().int().min(0).max(10),
+    sleepHours: z.number().min(0).max(24).nullable(),
+    waterMl: z.number().int().min(0).max(10000).nullable(),
+    mealsPerDay: z.number().int().min(0).max(10).nullable(),
     targetMood: moodSchema.nullable(),
     targetBowelStatus: bowelStatusSchema.nullable(),
   })
   .strict();
 export const DEFAULT_GOALS = {
-  sleepHours: 8,
-  waterMl: 2000,
-  mealsPerDay: 3,
+  sleepHours: null,
+  waterMl: null,
+  mealsPerDay: null,
   targetMood: null,
   targetBowelStatus: null,
 } satisfies z.infer<typeof goalsSchema>;
@@ -69,7 +63,8 @@ export const registerInputSchema = z
     email: emailSchema,
     password: z.string().min(8).max(128),
     displayName: z.string().trim().min(1).max(50),
-    timezone: timezoneSchema,
+    timezone: timezoneSchema.optional(),
+    goals: goalsSchema.optional(),
   })
   .strict();
 export const loginInputSchema = z
@@ -91,7 +86,6 @@ export const userDtoSchema = z
 export const profilePatchSchema = z
   .object({
     displayName: z.string().trim().min(1).max(50).optional(),
-    timezone: timezoneSchema.optional(),
     goals: goalsSchema.optional(),
     leaderboardEnabled: z.boolean().optional(),
   })
@@ -179,6 +173,7 @@ export const checkInSummarySchema = checkInDtoSchema.pick({
   localDate: true,
   completion: true,
   pointsEarned: true,
+  completedFieldCount: true,
 });
 export const habitInputSchema = z
   .object({

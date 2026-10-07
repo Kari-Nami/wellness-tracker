@@ -39,7 +39,13 @@ export async function account(name = 'Member', admin = false) {
     email: `${name.toLowerCase().replaceAll(' ', '')}@example.com`,
     displayName: name,
     password: 'integration-password',
-    timezone: 'Asia/Bangkok',
+    goals: {
+      sleepHours: 8,
+      waterMl: 2000,
+      mealsPerDay: 3,
+      targetMood: null,
+      targetBowelStatus: null,
+    },
   });
   if (admin) {
     await User.updateOne(

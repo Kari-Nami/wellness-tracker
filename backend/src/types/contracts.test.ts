@@ -82,6 +82,6 @@ describe('shared request contracts', () => {
         enabled: true,
       }).success,
     ).toBe(false);
-    expect(DEFAULT_GOALS.waterMl).toBe(2000);
+    expect(DEFAULT_GOALS.waterMl).toBeNull();
   });
 });

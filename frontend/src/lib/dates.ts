@@ -1,7 +1,8 @@
 import { format, addDays, parseISO } from 'date-fns';
 export function todayInZone(timezone: string, now = new Date()) {
+  void timezone;
   const parts = new Intl.DateTimeFormat('en', {
-    timeZone: timezone,
+    timeZone: 'Asia/Bangkok',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -21,5 +22,4 @@ export function dateRangeKeys(from: string, to: string) {
 }
 export const formatDay = (key: string, pattern = 'EEEE, MMMM d') =>
   format(dateFromKey(key), pattern);
-export const detectedTimezone = () =>
-  Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+export const detectedTimezone = () => 'Asia/Bangkok' as const;

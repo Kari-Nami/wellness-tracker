@@ -60,3 +60,25 @@ describe('daily check-in interactions', () => {
     save.mockRestore();
   });
 });
+
+it('clears both sleep fields and water explicitly', async () => {
+  const { record, date } = editor();
+  const save = vi.spyOn(checkInsApi, 'update').mockResolvedValue({
+    ...record,
+    sleep: { durationMinutes: null, quality: null },
+    waterMl: null,
+  });
+  fireEvent.click(screen.getByRole('button', { name: 'Clear sleep' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Clear water' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Save check-in' }));
+  await waitFor(() =>
+    expect(save).toHaveBeenCalledWith(
+      date,
+      expect.objectContaining({
+        sleep: { durationMinutes: null, quality: null },
+        waterMl: null,
+      }),
+    ),
+  );
+  save.mockRestore();
+});

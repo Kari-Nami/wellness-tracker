@@ -15,7 +15,7 @@ import {
   checkInSummarySchema,
   type DateRange,
 } from '../types/contracts';
-import { completionOf } from './completion';
+import { completedFieldCount, completionOf } from './completion';
 import { streakHistory } from './streakService';
 import { rowsForDate } from './habitEligibility';
 import { reconcileAwards } from './scoringService';
@@ -87,6 +87,7 @@ export async function listCheckIns(
         checkInSummarySchema.parse({
           localDate: r.localDate,
           completion: completionOf(r),
+          completedFieldCount: completedFieldCount(r),
           pointsEarned: r.pointAwards.reduce((n, a) => n + a.points, 0),
         }),
       );

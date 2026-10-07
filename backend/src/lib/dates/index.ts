@@ -1,8 +1,9 @@
 import { localDateSchema } from '../../types/contracts';
 import { AppError } from '../http';
 export function todayInZone(timezone: string, now = new Date()) {
+  void timezone;
   const parts = new Intl.DateTimeFormat('en', {
-    timeZone: timezone,
+    timeZone: 'Asia/Bangkok',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',

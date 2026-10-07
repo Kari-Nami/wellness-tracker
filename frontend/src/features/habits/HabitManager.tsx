@@ -251,7 +251,7 @@ function HabitForm({
       </Field>
       <Field
         id="habit-description"
-        label="A little detail (optional)"
+        label="Description"
         error={form.formState.errors.description?.message}
       >
         <textarea

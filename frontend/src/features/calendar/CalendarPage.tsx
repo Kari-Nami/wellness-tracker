@@ -1,7 +1,8 @@
+import { BowelIcon } from '../../components/ui/BowelIcon';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { DayPicker } from 'react-day-picker';
-import { startOfMonth, endOfMonth, addDays, format } from 'date-fns';
+import { startOfMonth, startOfWeek, addDays, format } from 'date-fns';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import {
   CalendarDays,
@@ -13,8 +14,7 @@ import {
   Heart,
   Utensils,
   Wine,
-  Activity,
-  Sparkles,
+  Star,
 } from 'lucide-react';
 import { checkInsApi } from '../../api/checkIns';
 import { queryKeys } from '../../api/queryKeys';
@@ -50,8 +50,9 @@ export function CalendarPage() {
       ? requested
       : today;
   const [month, setMonth] = useState(() => startOfMonth(dateFromKey(selected)));
-  const from = dateKey(addDays(startOfMonth(month), -7));
-  const to = dateKey(addDays(endOfMonth(month), 7));
+  const firstVisibleDay = startOfWeek(startOfMonth(month));
+  const from = dateKey(firstVisibleDay);
+  const to = dateKey(addDays(firstVisibleDay, 41));
   const query = useQuery({
     queryKey: queryKeys.checkIns(from, to, 'summary'),
     queryFn: ({ signal }) => checkInsApi.summaries({ from, to }, signal),
@@ -61,7 +62,9 @@ export function CalendarPage() {
     r.localDate.startsWith(format(month, 'yyyy-MM')),
   );
   const complete = inMonth.filter((r) => r.completion === 'complete').length;
-  const partial = inMonth.length - complete;
+  const partial = inMonth.filter(
+    (r) => r.completion === 'partial' && r.completedFieldCount > 0,
+  ).length;
   function choose(day: Date | undefined) {
     if (!day) return;
     setParams({ date: dateKey(day) });
@@ -69,9 +72,9 @@ export function CalendarPage() {
   return (
     <>
       <PageHeading
-        eyebrow="YOUR WELLNESS, OVER TIME"
-        title="Every day tells a story."
-        description="Look back, notice your consistency, and fill in the little gaps."
+        eyebrow="YOUR WELLNESS OVER TIME"
+        title="Calendar"
+        description="Select a date to view or edit your check-in."
         action={
           <Link className="button button-secondary" to="/today">
             Today's check-in <ArrowRight size={14} />
@@ -114,11 +117,18 @@ export function CalendarPage() {
                     .filter((r) => r.completion === 'complete')
                     .map((r) => dateFromKey(r.localDate)),
                   partial: records
-                    .filter((r) => r.completion === 'partial')
+                    .filter(
+                      (r) =>
+                        r.completion === 'partial' && r.completedFieldCount > 0,
+                    )
                     .map((r) => dateFromKey(r.localDate)),
                   missing: (day) =>
                     dateKey(day) <= today &&
-                    !records.some((r) => r.localDate === dateKey(day)),
+                    !records.some(
+                      (r) =>
+                        r.localDate === dateKey(day) &&
+                        r.completedFieldCount > 0,
+                    ),
                 }}
                 modifiersClassNames={{
                   complete: 'cal-complete',
@@ -162,18 +172,6 @@ export function CalendarPage() {
           </div>
         </section>
         <SelectedDay date={selected} />
-        <section className="calendar-note">
-          <span>
-            <CalendarDays size={21} />
-          </span>
-          <div>
-            <h3>A gap is just a place to start.</h3>
-            <p>
-              You can add a missed check-in or edit any past day. Your history
-              is yours to keep accurate.
-            </p>
-          </div>
-        </section>
       </div>
     </>
   );
@@ -207,7 +205,9 @@ function SelectedDay({ date }: { date: string }) {
             ) : (
               <Circle size={12} />
             )}
-            {titleCase(record.completion)}
+            {record.completedFieldCount === 0
+              ? 'Not logged'
+              : titleCase(record.completion)}
           </span>
         )}
       </div>
@@ -266,7 +266,7 @@ function SelectedDay({ date }: { date: string }) {
                   : 'Not logged',
               },
               {
-                icon: Activity,
+                icon: BowelIcon,
                 label: 'Bowel movement',
                 value: record.bowelStatus
                   ? titleCase(record.bowelStatus)
@@ -297,7 +297,7 @@ function SelectedDay({ date }: { date: string }) {
             )}
           </div>
           <div className="selected-points">
-            <Sparkles size={16} />
+            <Star size={16} />
             <strong>+{record.pointsEarned} points</strong>
             <span>Earned this day</span>
           </div>

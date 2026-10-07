@@ -23,7 +23,12 @@ export function getDatabase() {
     try {
       const saved = localStorage.getItem(key);
       if (saved) {
-        const result = databaseSchema.safeParse(JSON.parse(saved));
+        const stored = JSON.parse(saved);
+        if (stored && Array.isArray(stored.accounts)) {
+          for (const account of stored.accounts)
+            if (account?.user) account.user.timezone = 'Asia/Bangkok';
+        }
+        const result = databaseSchema.safeParse(stored);
         if (result.success) memory = result.data;
       }
     } catch {

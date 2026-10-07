@@ -134,6 +134,7 @@ export async function seedDemoAccounts() {
         timezone: 'Asia/Bangkok',
         goals: {
           ...DEFAULT_GOALS,
+          mealsPerDay: 3,
           waterMl: [2000, 2500, 1800][profile] ?? DEFAULT_GOALS.waterMl,
           sleepHours: [8, 7.5, 8][profile] ?? DEFAULT_GOALS.sleepHours,
           targetMood: 4,

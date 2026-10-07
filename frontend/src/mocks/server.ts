@@ -112,9 +112,9 @@ async function dispatch(
       id: makeId(),
       email: input.email,
       displayName: input.displayName,
-      timezone: input.timezone,
+      timezone: 'Asia/Bangkok',
       role: 'user',
-      goals: { ...DEFAULT_GOALS },
+      goals: input.goals ?? { ...DEFAULT_GOALS },
       leaderboardEnabled: true,
       createdAt: now,
       updatedAt: now,
@@ -155,11 +155,14 @@ async function dispatch(
       .sort((a, b) => a.localDate.localeCompare(b.localDate));
     return response(
       url.searchParams.get('view') === 'summary'
-        ? records.map(({ localDate, completion, pointsEarned }) => ({
-            localDate,
-            completion,
-            pointsEarned,
-          }))
+        ? records.map(
+            ({ localDate, completion, pointsEarned, completedFieldCount }) => ({
+              localDate,
+              completion,
+              pointsEarned,
+              completedFieldCount,
+            }),
+          )
         : records,
     );
   }

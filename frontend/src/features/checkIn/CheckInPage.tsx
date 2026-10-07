@@ -70,13 +70,6 @@ function DateRecord({ date, today }: { date: string; today: string }) {
     queryFn: ({ signal }) =>
       insightsApi.get({ from: shiftDate(today, -6), to: today }, signal),
   });
-  const hour = Number(
-    new Intl.DateTimeFormat('en', {
-      timeZone: user!.timezone,
-      hour: 'numeric',
-      hourCycle: 'h23',
-    }).format(new Date()),
-  );
   return (
     <>
       {date !== today && (
@@ -91,13 +84,13 @@ function DateRecord({ date, today }: { date: string; today: string }) {
         }
         title={
           date === today
-            ? `Good ${hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening'}, ${user!.displayName.split(' ')[0]}.`
-            : formatDay(date, 'MMMM d, yyyy')
+            ? 'Today'
+            : `Check-in for ${formatDay(date, 'MMMM d, yyyy')}`
         }
         description={
           date === today
-            ? 'Make a little time for yourself today.'
-            : 'Revisit your day, fill in a gap, or make a correction.'
+            ? 'Log your wellness for today.'
+            : "View or edit this day's check-in."
         }
         action={
           <span className="date-chip">

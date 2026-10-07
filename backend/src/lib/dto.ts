@@ -1,6 +1,7 @@
 import type { Types } from 'mongoose';
 import {
   userDtoSchema,
+  THAILAND_TIMEZONE,
   habitDtoSchema,
   pointRuleDtoSchema,
   checkInDtoSchema,
@@ -16,7 +17,7 @@ export function toUserDto(user: UserRecord & { _id: Types.ObjectId }) {
     email: user.email,
     displayName: user.displayName,
     role: user.role,
-    timezone: user.timezone,
+    timezone: THAILAND_TIMEZONE,
     goals: {
       sleepHours: user.goals.sleepHours,
       waterMl: user.goals.waterMl,

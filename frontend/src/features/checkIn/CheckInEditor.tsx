@@ -1,3 +1,4 @@
+import { BowelIcon } from '../../components/ui/BowelIcon';
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -7,7 +8,6 @@ import {
   Heart,
   Utensils,
   Wine,
-  Activity,
   Plus,
   Minus,
   Check,
@@ -16,7 +16,7 @@ import {
   Circle,
   Trash2,
   Leaf,
-  Sparkles,
+  Star,
   X,
   Smile,
   Frown,
@@ -236,7 +236,7 @@ export function CheckInEditor({
           </div>
         </div>
         <div className="summary-stat">
-          <Sparkles size={18} />
+          <Star size={18} />
           <div>
             <strong>
               +{record?.pointsEarned ?? 0}
@@ -291,14 +291,35 @@ export function CheckInEditor({
                       })
                     }
                     placeholder="0"
-                    aria-describedby="sleep-target"
+                    aria-describedby={
+                      user.goals.sleepHours !== null
+                        ? 'sleep-target'
+                        : undefined
+                    }
                   />
                   <span>hrs</span>
                 </div>
               </div>
-              <p id="sleep-target" className="tracking-hint">
-                Your target: {user.goals.sleepHours} hours
-              </p>
+              <div className="tracking-actions">
+                <Button
+                  variant="secondary"
+                  disabled={
+                    draft.sleep.durationMinutes === null &&
+                    draft.sleep.quality === null
+                  }
+                  onClick={() =>
+                    update('sleep', { durationMinutes: null, quality: null })
+                  }
+                >
+                  <X size={14} />
+                  Clear sleep
+                </Button>
+                {user.goals.sleepHours !== null && (
+                  <p id="sleep-target" className="tracking-hint">
+                    Your target: {user.goals.sleepHours} hours
+                  </p>
+                )}
+              </div>
               <p className="control-label">Sleep quality</p>
               <Segmented
                 label="Sleep quality"
@@ -377,19 +398,31 @@ export function CheckInEditor({
                   250 ml
                 </Button>
               </div>
-              <div className="water-goal">
-                <Progress
-                  value={
-                    user.goals.waterMl
-                      ? ((draft.waterMl ?? 0) / user.goals.waterMl) * 100
-                      : draft.waterMl === null
-                        ? 0
-                        : 100
-                  }
-                  label="Water target progress"
-                />
-                <span>Target: {waterLabel(user.goals.waterMl)}</span>
+              <div className="tracking-actions">
+                <Button
+                  variant="secondary"
+                  disabled={draft.waterMl === null}
+                  onClick={() => update('waterMl', null)}
+                >
+                  <X size={14} />
+                  Clear water
+                </Button>
               </div>
+              {user.goals.waterMl !== null && (
+                <div className="water-goal">
+                  <Progress
+                    value={
+                      user.goals.waterMl
+                        ? ((draft.waterMl ?? 0) / user.goals.waterMl) * 100
+                        : draft.waterMl === null
+                          ? 0
+                          : 100
+                    }
+                    label="Water target progress"
+                  />
+                  <span>Target: {waterLabel(user.goals.waterMl)}</span>
+                </div>
+              )}
             </section>
             <section className="panel tracking-panel full-width">
               <SectionTitle
@@ -426,7 +459,7 @@ export function CheckInEditor({
                 icon={Utensils}
                 title="Meals"
                 note="A simple record of what fueled your day."
-                value={`${[draft.meals.breakfast, draft.meals.lunch, draft.meals.dinner].filter((m) => m.status === 'eaten').length + draft.meals.snacks.filter((s) => s.description.trim()).length}${user.goals.mealsPerDay > 0 ? ` / ${user.goals.mealsPerDay}` : ''} eaten`}
+                value={`${[draft.meals.breakfast, draft.meals.lunch, draft.meals.dinner].filter((m) => m.status === 'eaten').length + draft.meals.snacks.filter((s) => s.description.trim()).length}${user.goals.mealsPerDay !== null && user.goals.mealsPerDay > 0 ? ` / ${user.goals.mealsPerDay}` : ''} eaten`}
               />
               <div className="meal-list">
                 {(['breakfast', 'lunch', 'dinner'] as const).map((key) => {
@@ -561,7 +594,7 @@ export function CheckInEditor({
             </section>
             <section className="panel tracking-panel">
               <SectionTitle
-                icon={Activity}
+                icon={BowelIcon}
                 title="Bowel movement"
                 note={
                   user.goals.targetBowelStatus === null
@@ -600,16 +633,6 @@ export function CheckInEditor({
                           ? `Last saved ${new Intl.DateTimeFormat('en', { timeZone: user.timezone, month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date(record.updatedAt))}`
                           : 'Save whenever you are ready.'}
                 </p>
-              )}
-              {record && (
-                <Button
-                  variant="ghost"
-                  disabled={pending}
-                  onClick={() => setConfirmDelete(true)}
-                >
-                  <Trash2 size={13} />
-                  Delete this day
-                </Button>
               )}
             </div>
             <Button
@@ -681,27 +704,17 @@ export function CheckInEditor({
             ) : (
               <EmptyState
                 title="Start a small routine"
-                description="Add your first daily habit in Profile."
+                description="Add a daily habit on the Habits page."
               />
             )}
-            <Link className="text-link manage-habits" to="/profile#habits">
+            <Link className="text-link manage-habits" to="/habits">
               Manage habits <ArrowUpRight size={14} />
             </Link>
-          </section>
-          <section className="gentle-note">
-            <span className="gentle-note-icon">
-              <Leaf size={23} />
-            </span>
-            <h3>Progress over perfection.</h3>
-            <p>
-              You don't have to do it all. Showing up for yourself is a good
-              place to start.
-            </p>
           </section>
           <section className="panel points-panel">
             <div className="panel-heading">
               <h2>Point activity</h2>
-              <Sparkles size={16} />
+              <Star size={16} />
             </div>
             {record?.pointAwards.length ? (
               <>
@@ -733,6 +746,22 @@ export function CheckInEditor({
               Points recognize consistency and logging.
             </p>
           </section>
+          {record && (
+            <section className="panel delete-day-panel">
+              <h2>Delete this day</h2>
+              <p>Remove this day's entries and points.</p>
+              <Button
+                variant="danger"
+                disabled={pending}
+                onClick={() => setConfirmDelete(true)}
+              >
+                <Trash2 size={17} />
+                {localDate === todayInZone(user.timezone)
+                  ? "Delete today's entry"
+                  : "Delete this day's entry"}
+              </Button>
+            </section>
+          )}
         </aside>
       </div>
       <ConfirmDialog

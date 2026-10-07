@@ -34,6 +34,7 @@ export async function seedAdmin(payload: unknown) {
   const { password, ...fields } = input;
   await User.create({
     ...fields,
+    timezone: 'Asia/Bangkok',
     passwordHash: await hashPassword(password),
     role: 'admin',
     leaderboardEnabled: false,

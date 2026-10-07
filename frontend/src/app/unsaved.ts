@@ -1,8 +1,13 @@
 import { createContext, useContext, useEffect } from 'react';
-export type UnsavedEntry = { dirty: boolean; busy: boolean };
+export type UnsavedEntry = {
+  dirty: boolean;
+  busy: boolean;
+  automatic?: boolean;
+};
 export const UnsavedContext = createContext<{
   dirty: boolean;
   busy: boolean;
+  automatic: boolean;
   update: (key: string, entry: UnsavedEntry | null) => void;
 } | null>(null);
 export function useUnsaved() {
@@ -10,10 +15,15 @@ export function useUnsaved() {
   if (!value) throw new Error('Unsaved changes provider is missing.');
   return value;
 }
-export function useUnsavedChanges(key: string, dirty: boolean, busy = false) {
+export function useUnsavedChanges(
+  key: string,
+  dirty: boolean,
+  busy = false,
+  automatic = false,
+) {
   const { update } = useUnsaved();
   useEffect(() => {
-    update(key, { dirty, busy });
+    update(key, { dirty, busy, automatic });
     return () => update(key, null);
-  }, [key, dirty, busy, update]);
+  }, [key, dirty, busy, automatic, update]);
 }

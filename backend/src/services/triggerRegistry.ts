@@ -31,7 +31,7 @@ export const triggerRegistry: Trigger[] = [
   {
     key: 'HABIT_COMPLETE',
     label: 'Complete a daily habit',
-    description: 'Awarded once per completed eligible habit.',
+    description: 'Awarded once per completed daily habit.',
     defaultPoints: 3,
     instances: (c) =>
       c.checkIn.habitCompletions
@@ -41,7 +41,7 @@ export const triggerRegistry: Trigger[] = [
   {
     key: 'ALL_DAILY_HABITS_COMPLETE',
     label: 'Complete all daily habits',
-    description: 'Complete every eligible habit, with at least one habit.',
+    description: 'Complete all your daily habits, with at least one habit.',
     defaultPoints: 5,
     instances: singleton(
       'ALL_DAILY_HABITS_COMPLETE',
@@ -61,7 +61,10 @@ export const triggerRegistry: Trigger[] = [
     defaultPoints: 3,
     instances: singleton(
       'WATER_GOAL_REACHED',
-      (c) => c.checkIn.waterMl !== null && c.checkIn.waterMl >= c.goals.waterMl,
+      (c) =>
+        c.goals.waterMl !== null &&
+        c.checkIn.waterMl !== null &&
+        c.checkIn.waterMl >= c.goals.waterMl,
     ),
   },
   {
@@ -72,6 +75,7 @@ export const triggerRegistry: Trigger[] = [
     instances: singleton(
       'SLEEP_GOAL_REACHED',
       (c) =>
+        c.goals.sleepHours !== null &&
         c.checkIn.sleep.durationMinutes !== null &&
         c.checkIn.sleep.durationMinutes >= c.goals.sleepHours * 60,
     ),

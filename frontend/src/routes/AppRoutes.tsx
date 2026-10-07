@@ -44,6 +44,11 @@ const LeaderboardPage = lazy(() =>
     default: m.LeaderboardPage,
   })),
 );
+const HabitsPage = lazy(() =>
+  import('../features/habits/HabitsPage').then((m) => ({
+    default: m.HabitsPage,
+  })),
+);
 const AdminPage = lazy(() =>
   import('../features/admin/AdminPage').then((m) => ({ default: m.AdminPage })),
 );
@@ -67,6 +72,7 @@ const router = createBrowserRouter(
           <Route path="/insights" element={<InsightsPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/habits" element={<HabitsPage />} />
         </Route>
       </Route>
       <Route element={<ProtectedRoute role="admin" />}>

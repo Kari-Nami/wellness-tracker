@@ -17,7 +17,7 @@ function page(
     loading: false,
     error: null,
     login,
-    register: vi.fn(),
+    register: vi.fn().mockResolvedValue(createDemoDatabase().accounts[0].user),
     refresh: vi.fn(),
     logout: vi.fn(),
   };
@@ -32,10 +32,10 @@ function page(
       </MemoryRouter>
     </AuthContext.Provider>,
   );
-  return login;
+  return { login, register: auth.register };
 }
 it('shows plaintext credentials and fills both inputs without signing in', () => {
-  const login = page();
+  const { login } = page();
   expect(screen.getByText('wellness123')).toBeInTheDocument();
   for (const account of DEMO_ACCOUNTS)
     expect(screen.getByText(account.email)).toBeInTheDocument();
@@ -66,7 +66,7 @@ it('shows plaintext credentials and fills both inputs without signing in', () =>
   );
 });
 it('signs in to the administrator route only after explicitly submitting the filled form', async () => {
-  const login = page('login', 'admin');
+  const { login } = page('login', 'admin');
   const admin = DEMO_ACCOUNTS.find((a) => a.role === 'admin')!;
   fireEvent.click(
     screen.getByRole('button', { name: 'Fill Demo administrator credentials' }),
@@ -87,4 +87,33 @@ it('keeps demo shortcuts off the personal registration form', () => {
   expect(
     screen.getByRole('button', { name: 'Create account' }),
   ).toBeInTheDocument();
+});
+
+it('registers with every target blank and no timezone input', async () => {
+  const { register } = page('register');
+  fireEvent.change(screen.getByLabelText('Your name'), {
+    target: { value: 'New member' },
+  });
+  fireEvent.change(screen.getByLabelText('Email address'), {
+    target: { value: 'new@example.com' },
+  });
+  fireEvent.change(screen.getByLabelText('Password', { exact: true }), {
+    target: { value: 'password123' },
+  });
+  expect(screen.queryByLabelText('Timezone')).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Create account' }));
+  await waitFor(() =>
+    expect(register).toHaveBeenCalledWith({
+      displayName: 'New member',
+      email: 'new@example.com',
+      password: 'password123',
+      goals: {
+        sleepHours: null,
+        waterMl: null,
+        mealsPerDay: null,
+        targetMood: null,
+        targetBowelStatus: null,
+      },
+    }),
+  );
 });

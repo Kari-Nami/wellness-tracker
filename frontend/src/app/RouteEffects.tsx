@@ -9,6 +9,7 @@ export function RouteEffects() {
       insights: 'Your insights',
       leaderboard: 'Community board',
       profile: 'Your profile',
+      habits: 'Habits',
       admin: 'Point configuration',
       login: 'Sign in',
       register: 'Create account',

@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import {
   NavLink,
   Outlet,
@@ -9,6 +9,7 @@ import {
 import * as Dropdown from '@radix-ui/react-dropdown-menu';
 import {
   Sun,
+  ListChecks,
   CalendarDays,
   ChartNoAxesCombined,
   Trophy,
@@ -30,7 +31,7 @@ const navigation = [
   { path: '/calendar', label: 'Calendar', icon: CalendarDays },
   { path: '/insights', label: 'Insights', icon: ChartNoAxesCombined },
   { path: '/leaderboard', label: 'Leaderboard', icon: Trophy },
-  { path: '/profile', label: 'Profile', icon: UserRound },
+  { path: '/habits', label: 'Habits', icon: ListChecks },
 ];
 export function AppShell() {
   const auth = useAuth();
@@ -53,7 +54,7 @@ export function AppShell() {
   const [pending, setPending] = useState(false);
   const user = auth.user!;
   const admin = user.role === 'admin';
-  async function logout() {
+  const logout = useCallback(async () => {
     setPending(true);
     setError('');
     try {
@@ -68,7 +69,20 @@ export function AppShell() {
     } finally {
       setPending(false);
     }
-  }
+  }, [auth, navigate]);
+  useEffect(() => {
+    if (!confirmLogout || unsaved.dirty || unsaved.busy || pending) return;
+    let cancelled = false;
+    Promise.resolve().then(() => {
+      if (!cancelled) {
+        setConfirmLogout(false);
+        void logout();
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [confirmLogout, unsaved.dirty, unsaved.busy, pending, logout]);
   return (
     <div className="app-shell">
       <a className="skip-link" href="#main-content">
@@ -151,12 +165,17 @@ export function AppShell() {
       </main>
       <footer className="app-footer">
         <span>
-          <Leaf size={13} /> A little progress, every day.
+          <Leaf size={13} /> A little progress every day.
         </span>
         <span>Your wellness. Your pace.</span>
       </footer>
+      {blocker.state === 'blocked' && unsaved.automatic && (
+        <p className="autosave-navigation" role="status">
+          Saving changes before leaving...
+        </p>
+      )}
       <ConfirmDialog
-        open={blocker.state === 'blocked'}
+        open={blocker.state === 'blocked' && !unsaved.automatic}
         onOpenChange={(open) => {
           if (!open && blocker.state === 'blocked') blocker.reset();
         }}
@@ -169,7 +188,7 @@ export function AppShell() {
         }}
       />
       <ConfirmDialog
-        open={confirmLogout}
+        open={confirmLogout && !unsaved.automatic}
         onOpenChange={setConfirmLogout}
         title="Sign out without saving?"
         description="Your unsaved changes will be discarded when you sign out."

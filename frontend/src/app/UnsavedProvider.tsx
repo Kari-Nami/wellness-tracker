@@ -12,7 +12,8 @@ export function UnsavedProvider({ children }: { children: ReactNode }) {
       }
       if (
         previous[key]?.dirty === entry.dirty &&
-        previous[key]?.busy === entry.busy
+        previous[key]?.busy === entry.busy &&
+        previous[key]?.automatic === entry.automatic
       )
         return previous;
       return { ...previous, [key]: entry };
@@ -23,6 +24,11 @@ export function UnsavedProvider({ children }: { children: ReactNode }) {
       value={{
         dirty: Object.values(entries).some((e) => e.dirty),
         busy: Object.values(entries).some((e) => e.busy),
+        automatic:
+          Object.values(entries).filter((e) => e.dirty).length > 0 &&
+          Object.values(entries)
+            .filter((e) => e.dirty)
+            .every((e) => e.automatic),
         update,
       }}
     >

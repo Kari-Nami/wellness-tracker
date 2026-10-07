@@ -292,7 +292,7 @@ it('seeds idempotently, preserves rule configuration, and promotes an existing o
     email: user.email,
     displayName: 'Operator',
     password: 'different-password',
-    timezone: 'UTC',
+    timezone: 'Asia/Bangkok',
   });
   const stored = (await User.findById(user.id).select('+passwordHash'))!;
   expect(stored.role).toBe('admin');

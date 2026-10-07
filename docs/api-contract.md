@@ -1,4 +1,4 @@
-# API contract v1
+# API contract v2
 
 This addendum resolves details left open in the supplied implementation guide. This contract retains the supplied documents' architecture and domain boundaries. These choices retain the frameworks, domain models, authentication design, and deployment topology. Review contract changes before updating their consumers.
 
@@ -44,11 +44,11 @@ Names below reference exports in `contracts/wellness.ts`. List responses are arr
 | GET /api/health                   | none                                | healthDtoSchema, status=ok                   |
 | GET /api/health/ready             | none                                | healthDtoSchema, status=ready or 503         |
 
-Registration creates users only, normalizes email, sets defaults (8 hours, 2000 ml, 3 meals, optional targets null), and defaults leaderboard participation to true. Duplicate normalized email is 409. Login uses a generic credential error. Session cookie is wellness_session, HttpOnly, SameSite=Lax, Secure in production, Path=PUBLIC_BASE_PATH (or /), default seven-day lifetime. Clear it with matching attributes. Verify the persisted role and user each request. Validate write Origin against APP_ORIGIN before authenticated mutations, and protect login/register against unintended cross-origin writes too.
+Registration creates users only, normalizes email, uses Thailand calendar time and leaves all five targets null unless explicitly supplied during registration, and defaults leaderboard participation to true. Duplicate normalized email is 409. Login uses a generic credential error. Session cookie is wellness_session, HttpOnly, SameSite=Lax, Secure in production, Path=PUBLIC_BASE_PATH (or /), default seven-day lifetime. Clear it with matching attributes. Verify the persisted role and user each request. Validate write Origin against APP_ORIGIN before authenticated mutations, and protect login/register against unintended cross-origin writes too.
 
 ## Partial records and PATCH
 
-POST requires only localDate. Omitted fields receive explicit empty defaults: sleep members null, water/mood/alcohol/bowel null, main meals not_logged, snacks empty, habits initialized by the backend. A persisted empty record is partial with zero completed fields. Missing means no record and GET returns 404. Range lists omit missing dates; the calendar derives missing markers from absent dates. Future creation and mutation are rejected against the user's current local date. Calendar list ranges may include future dates; these simply have no records.
+POST requires only localDate. Omitted fields receive explicit empty defaults: sleep members null, water/mood/alcohol/bowel null, main meals not_logged, snacks empty, habits initialized by the backend. A persisted empty record is partial with zero completed fields. Missing means no record and GET returns 404. Calendar summaries include completedFieldCount so an empty saved record can display as not logged. Range lists omit missing dates; the calendar derives missing markers from absent dates. Future creation and mutation are rejected against the user's current local date. Calendar list ranges may include future dates; these simply have no records.
 
 PATCH is a shallow patch of allowed top-level fields. Omitted categories remain unchanged. A supplied sleep object includes both members. A supplied meals object includes all three main meals and snacks. Explicit null clears a nullable field. An array replaces that category; an empty array explicitly clears it. Reject an empty PATCH. No implicit upsert. UI saves serialize per date and display server-confirmed state; an explicit Save action is the initial frontend approach.
 
@@ -60,7 +60,7 @@ Completion counts nine built-in fields: sleep duration, sleep quality, water, mo
 
 ## Profile, habits, and scoring
 
-Profile PATCH may change displayName, timezone, leaderboardEnabled, or goals. A supplied goals object replaces the whole target object and includes nullable optional targets. Email, role, password, and ID are not patchable. Timezone changes affect future interpretation of today, not stored localDate identities. Habit lists default to all non-deleted habits, including paused ones. includeArchived=true also includes soft-deleted rows. Habit descriptions normalize to an empty string in DTOs. Max active non-deleted habits is ten. Trigger keys are immutable after PointRule creation.
+Profile PATCH may change displayName, leaderboardEnabled, or goals. All five target fields are nullable. A supplied goals object replaces the whole target object. Email, role, password, and ID are not patchable. Timezone is server-owned and fixed to Asia/Bangkok; no user timezone selection is offered. Existing localDate identities remain unchanged. Habit lists default to all non-deleted habits, including paused ones. includeArchived=true also includes soft-deleted rows. Habit descriptions normalize to an empty string in DTOs. Max active non-deleted habits is ten. Trigger keys are immutable after PointRule creation.
 
 The eight trigger keys and default values are in guide sections 25 and 26. Rules come from the database, not frontend constants. Award identity is triggerKey for ordinary daily awards and HABIT_COMPLETE:<habitId> for per-habit awards. Streak milestones fire at exactly day 7 and day 30 of each consecutive run. Zero active habits never qualifies for all-habits-complete. Explicit alcohol logging rewards any allowed status.
 
@@ -74,7 +74,7 @@ Date ranges are inclusive, ordered, and limited to 365 days. Insights reject fut
 
 Rates are percentages from 0 to 100. Return null when a denominator is zero. Averages include explicitly logged values only, including zero. Never replace unlogged readings with zero in sleep, water, or mood charts.
 
-- Sleep/water goal rates: qualifying explicitly logged readings divided by their logged-reading counts, using current profile targets for this descriptive range comparison.
+- Sleep/water goal rates: qualifying explicitly logged readings divided by their logged-reading counts, using current profile targets for this descriptive range comparison. A null sleep/water target produces a null goal rate and cannot earn a target award.
 - Check-in completion rate: complete days divided by all calendar days in range.
 - Habit completion rate: completed eligible habit-date pairs divided by all eligible habit-date pairs in range.
 - Meal logging rate: main meal slots with eaten or skipped divided by three times dayCount. Snacks do not affect this rate.
@@ -92,3 +92,9 @@ All-time eligible participants have role user and leaderboardEnabled=true. Inclu
 ## Implementation boundaries
 
 All contract endpoints, persistent services, seeds, and the full frontend are implemented. Trusted authorization, scoring, streaks, and metrics live in the backend. Demo calculations remain development-only. See `docs/frontend-readiness.md` for visual review and `docs/local-testing.md` for final acceptance.
+
+## Interface behavior
+
+Numeric zero remains an explicit reading. Clear sleep resets both duration and quality to null; Clear water resets waterMl to null. These controls are available for current and historical check-ins. Targets can be cleared independently and never block logging. Registration presents all target fields without assigning defaults.
+
+Profile fields and targets autosave through a serialized queue. Successful writes update private query caches; pending autosaves finish before route navigation. Failed edits remain visible with an explicit retry and ordinary unsaved-change protection. Habits have their own route and navigation item; profile is available through the account menu.

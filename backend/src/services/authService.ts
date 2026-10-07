@@ -6,6 +6,8 @@ import { hashPassword, verifyPassword } from '../lib/auth/passwords';
 import { AppError } from '../lib/http';
 import {
   registerInputSchema,
+  DEFAULT_GOALS,
+  THAILAND_TIMEZONE,
   loginInputSchema,
   profilePatchSchema,
 } from '../types/contracts';
@@ -16,7 +18,8 @@ export async function registerUser(payload: unknown) {
   const user = await User.create({
     email: input.email,
     displayName: input.displayName,
-    timezone: input.timezone,
+    timezone: THAILAND_TIMEZONE,
+    goals: input.goals ?? { ...DEFAULT_GOALS },
     passwordHash,
     role: 'user',
   });

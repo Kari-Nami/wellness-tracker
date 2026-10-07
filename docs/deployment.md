@@ -19,7 +19,7 @@ Do not print resolved Compose configuration into shared logs. Named mongo_data p
 
 ## Explicit seeds
 
-Set ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_DISPLAY_NAME, and ADMIN_TIMEZONE in the protected environment file. Then:
+Set ADMIN_EMAIL, ADMIN_PASSWORD, and ADMIN_DISPLAY_NAME in the protected environment file. Then:
 
 ```sh
 docker compose --env-file /opt/wellness-tracker/.env.production \
