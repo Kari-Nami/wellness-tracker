@@ -9,12 +9,8 @@ import {
 } from '../types/contracts';
 import { request, jsonBody } from './client';
 export const habitsApi = {
-  list: (includeArchived = false, signal?: AbortSignal) =>
-    request(
-      `/habits?includeArchived=${includeArchived}`,
-      z.array(habitDtoSchema),
-      { signal },
-    ),
+  list: (signal?: AbortSignal) =>
+    request('/habits', z.array(habitDtoSchema), { signal }),
   get: (id: string) => request(`/habits/${idSchema.parse(id)}`, habitDtoSchema),
   create: (input: HabitInput) =>
     request(

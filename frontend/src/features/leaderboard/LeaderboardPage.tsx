@@ -25,7 +25,7 @@ export function LeaderboardPage() {
         title="Leaderboard"
         description="Compare all-time points and current streaks."
         action={
-          <span className="badge badge-neutral">
+          <span className="date-chip">
             <Trophy size={13} />
             All-time points
           </span>
@@ -86,7 +86,9 @@ export function LeaderboardPage() {
                 <tbody>
                   {rows.map((row) => (
                     <tr
-                      className={`leader-rank-${row.rank} ${row.isCurrentUser ? 'current-user-row' : ''}`}
+                      className={
+                        row.isCurrentUser ? 'current-user-row' : undefined
+                      }
                       key={row.rank}
                     >
                       <td>

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Leaf, Plus, Pencil, Archive, Pause, Play } from 'lucide-react';
+import { Leaf, Plus, Pencil, Trash2, Pause, Play } from 'lucide-react';
 import { habitsApi } from '../../api/habits';
 import { queryKeys } from '../../api/queryKeys';
 import { invalidateWellness } from '../../api/invalidation';
@@ -24,11 +24,11 @@ export function HabitManager() {
   const client = useQueryClient();
   const query = useQuery({
     queryKey: queryKeys.habits(),
-    queryFn: ({ signal }) => habitsApi.list(false, signal),
+    queryFn: ({ signal }) => habitsApi.list(signal),
   });
   const [dialog, setDialog] = useState(false);
   const [editing, setEditing] = useState<HabitDto | null>(null);
-  const [archiving, setArchiving] = useState<HabitDto | null>(null);
+  const [deleting, setDeleting] = useState<HabitDto | null>(null);
   const [pending, setPending] = useState<string | null>(null);
   const [error, setError] = useState('');
   const habits = query.data ?? [];
@@ -51,17 +51,17 @@ export function HabitManager() {
       setPending(null);
     }
   }
-  async function archive() {
-    if (!archiving) return;
-    setPending(archiving.id);
+  async function remove() {
+    if (!deleting) return;
+    setPending(deleting.id);
     setError('');
     try {
-      await habitsApi.remove(archiving.id);
-      setArchiving(null);
+      await habitsApi.remove(deleting.id);
+      setDeleting(null);
       await changed();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : 'We could not archive this habit.',
+        err instanceof Error ? err.message : 'We could not delete this habit.',
       );
     } finally {
       setPending(null);
@@ -77,14 +77,10 @@ export function HabitManager() {
         <div>
           <h2>Your daily habits</h2>
           <p className="panel-subtitle">
-            {active} of 10 active habits. Keep it small and meaningful.
+            {active} active {active === 1 ? 'habit' : 'habits'}.
           </p>
         </div>
-        <Button
-          variant="secondary"
-          disabled={active >= 10 || !!pending}
-          onClick={add}
-        >
+        <Button variant="secondary" disabled={!!pending} onClick={add}>
           <Plus size={14} />
           Add habit
         </Button>
@@ -140,7 +136,7 @@ export function HabitManager() {
                   type="button"
                   className="icon-button"
                   aria-label={`${habit.active ? 'Pause' : 'Resume'} ${habit.name}`}
-                  disabled={!!pending || (!habit.active && active >= 10)}
+                  disabled={!!pending}
                   onClick={() => void toggle(habit)}
                 >
                   {habit.active ? <Pause size={14} /> : <Play size={14} />}
@@ -148,27 +144,28 @@ export function HabitManager() {
                 <button
                   type="button"
                   className="icon-button"
-                  aria-label={`Archive ${habit.name}`}
+                  aria-label={`Delete ${habit.name}`}
                   disabled={!!pending}
                   onClick={() => {
                     setError('');
-                    setArchiving(habit);
+                    setDeleting(habit);
                   }}
                 >
-                  <Archive size={14} />
+                  <Trash2 size={14} />
                 </button>
               </div>
             </div>
           ))}
         </div>
       )}
-      {error && !archiving && (
+      {error && !deleting && (
         <p className="form-error" role="alert">
           {error}
         </p>
       )}
       <p className="habit-management-note">
-        Habits are daily. Archiving keeps your past check-ins intact.
+        Pause a habit to keep it for later. Deleting removes it permanently;
+        past check-ins stay intact.
       </p>
       <Modal
         open={dialog}
@@ -186,16 +183,16 @@ export function HabitManager() {
         />
       </Modal>
       <ConfirmDialog
-        open={!!archiving}
+        open={!!deleting}
         onOpenChange={(open) => {
-          if (!open) setArchiving(null);
+          if (!open) setDeleting(null);
         }}
-        title="Archive this habit?"
-        description={`“${archiving?.name ?? ''}” will leave your active routines. Its past check-in history will remain.`}
-        onConfirm={() => void archive()}
+        title="Delete this habit?"
+        description={`“${deleting?.name ?? ''}” will be permanently deleted and cannot be restored. Its past check-in history will remain.`}
+        onConfirm={() => void remove()}
         pending={!!pending}
         error={error || undefined}
-        label="Archive habit"
+        label="Delete habit"
       />
     </section>
   );

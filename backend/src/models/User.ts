@@ -9,12 +9,13 @@ import {
   DEFAULT_GOALS,
   bowelStatusSchema,
   THAILAND_TIMEZONE,
+  MAX_WATER_ML,
 } from '../types/contracts';
 import { DEMO_ACCOUNTS } from '../types/demoAccounts';
 const goals = new Schema(
   {
     sleepHours: { type: Number, default: null, min: 0, max: 24 },
-    waterMl: { type: Number, default: null, min: 0, max: 10000 },
+    waterMl: { type: Number, default: null, min: 0, max: MAX_WATER_ML },
     mealsPerDay: { type: Number, default: null, min: 0, max: 10 },
     targetMood: { type: Number, default: null, enum: [1, 2, 3, 4, 5] },
     targetBowelStatus: {

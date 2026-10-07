@@ -82,3 +82,38 @@ it('clears both sleep fields and water explicitly', async () => {
   );
   save.mockRestore();
 });
+
+it('bounds typed numeric readings before saving and still allows clearing them', async () => {
+  const { record, date } = editor();
+  const save = vi.spyOn(checkInsApi, 'update').mockResolvedValue({
+    ...record,
+    waterMl: 12000,
+    sleep: { ...record.sleep, durationMinutes: 1440 },
+  });
+  const sleep = screen.getByLabelText('Hours of sleep');
+  const water = screen.getByLabelText('Water intake in milliliters');
+  fireEvent.change(sleep, { target: { value: '100' } });
+  fireEvent.change(water, { target: { value: '1000000000' } });
+  expect(sleep).toHaveValue(24);
+  expect(water).toHaveValue(12000);
+  expect(screen.getByRole('button', { name: '250 ml' })).toBeDisabled();
+  fireEvent.click(screen.getByRole('button', { name: 'Save check-in' }));
+  await waitFor(() =>
+    expect(save).toHaveBeenCalledWith(
+      date,
+      expect.objectContaining({
+        waterMl: 12000,
+        sleep: { ...record.sleep, durationMinutes: 1440 },
+      }),
+    ),
+  );
+  fireEvent.change(sleep, { target: { value: '-5' } });
+  fireEvent.change(water, { target: { value: '-250' } });
+  expect(sleep).toHaveValue(0);
+  expect(water).toHaveValue(0);
+  fireEvent.change(sleep, { target: { value: '' } });
+  fireEvent.change(water, { target: { value: '' } });
+  expect(sleep).toHaveValue(null);
+  expect(water).toHaveValue(null);
+  save.mockRestore();
+});

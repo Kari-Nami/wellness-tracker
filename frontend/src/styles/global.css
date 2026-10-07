@@ -1953,12 +1953,7 @@ textarea.input {
   min-width: 0;
   height: 195px;
 }
-.chart-summary {
-  color: #5e7056;
-  font-size: 9px;
-  margin-top: 17px;
-  line-height: 1.8;
-}
+
 .insight-bottom {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -3114,15 +3109,6 @@ textarea.input {
 .leaderboard-layout {
   grid-template-columns: minmax(0, 1fr);
 }
-.leaderboard-table tr.leader-rank-1 {
-  background: #f7f3df;
-}
-.leaderboard-table tr.leader-rank-2 {
-  background: #f0f4f2;
-}
-.leaderboard-table tr.leader-rank-3 {
-  background: #f6f0e9;
-}
 .leaderboard-table tr.current-user-row {
   background: #e6efdb;
 }
@@ -3167,9 +3153,6 @@ textarea.input {
 }
 .profile-targets {
   align-self: start;
-}
-.chart-summary {
-  font-size: 12px;
 }
 @media (max-width: 760px) {
   .compact-heading {

@@ -34,7 +34,7 @@ The member demos include ninety days of sample check-ins, meal descriptions, hab
 
 - [ ] Register, sign out, sign back in, and reload. Confirm session persistence and private route protection.
 - [ ] Save a partial check-in, then log all nine fields. Try zero water, skipped meals, and none statuses. Confirm completion and points.
-- [ ] Add, edit, pause/resume, and archive a habit. Complete it today and confirm its points without duplicate awards on repeat saves.
+- [ ] Add, edit, pause/resume, and delete a habit. Complete it today and confirm its points without duplicate awards on repeat saves.
 - [ ] Add or correct an earlier calendar day, then delete a disposable day. Future dates must remain read-only.
 - [ ] Change or clear personal targets, edit your display name, and toggle leaderboard participation. Verify automatic save feedback and opt-out. All dates use Thailand time.
 - [ ] Inspect 7/30/90-day and custom insights, including missing dates and single readings.
@@ -51,7 +51,7 @@ npm run test:stack
 python3 backend/deploy/nginx/test_render_snippet.py
 ```
 
-Integration tests start a unique disposable MongoDB replica set and remove it afterward. Stack checks operate only on local origins. They create test accounts, restore modified rule settings, delete their check-in, archive their habit, and opt their accounts out of the leaderboard. They leave no sample production data in the images.
+Integration tests start a unique disposable MongoDB replica set and remove it afterward. Stack checks operate only on local origins. They create test accounts, restore modified rule settings, delete their check-in, delete their habit, and opt their accounts out of the leaderboard. They leave no sample production data in the images.
 
 ## Stop and restart
 
@@ -80,4 +80,4 @@ Open `http://localhost:5173`. Native development uses a separate loopback MongoD
 
 ## Verified implementation
 
-On October 8, 2026, 35 frontend tests, 16 backend unit tests, 24 real MongoDB integration tests, both production builds, routing-renderer tests, authenticated Docker startup, HTTP stack smoke, browser session/check-in persistence, desktop/mobile screenshot review, and a local backup/restore round trip passed. Hosted CI and VM acceptance require the later repository publication and owner deployment.
+On October 8, 2026, 36 frontend tests, 16 backend unit tests, 25 real MongoDB integration tests, both production builds, routing-renderer tests, authenticated Docker startup, HTTP stack smoke, browser session/check-in persistence, desktop/mobile screenshot review, and a local backup/restore round trip passed. Hosted CI and VM acceptance require the later repository publication and owner deployment.

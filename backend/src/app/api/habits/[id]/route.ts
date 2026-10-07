@@ -1,7 +1,7 @@
 import { handleRoute, readJson, success, noContent } from '@/lib/http';
 import { requireUser } from '@/lib/auth/guards';
 import { requireOrigin } from '@/lib/auth/origin';
-import { getHabit, updateHabit, archiveHabit } from '@/services/habitService';
+import { getHabit, updateHabit, deleteHabit } from '@/services/habitService';
 type Context = { params: Promise<{ id: string }> };
 export const dynamic = 'force-dynamic';
 export async function GET(request: Request, context: Context) {
@@ -27,7 +27,7 @@ export async function DELETE(request: Request, context: Context) {
   return handleRoute(async () => {
     requireOrigin(request);
     const user = await requireUser(request);
-    await archiveHabit(user.id, (await context.params).id);
+    await deleteHabit(user.id, (await context.params).id);
     return noContent();
   });
 }

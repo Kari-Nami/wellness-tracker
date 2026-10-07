@@ -12,7 +12,7 @@ The frontend is complete against contract v2 and integrated with the persistent 
 | Insights        | 7/30/90-day and custom ranges; sleep/water/mood/points charts; completion, goals, habit rates; status distributions; current/longest streaks; empty/error states                                                  |
 | Leaderboard     | All-time public-safe rows, current-member identification, opt-out messaging, points/streak display, zero-score and empty handling                                                                                 |
 | Profile         | Display name and leaderboard preference autosave; all targets are nullable and can be cleared; save/retry feedback                                                                                                |
-| Habits          | Create/edit, pause/resume, ten-active-habit constraint, confirmed archival, retained historical labels                                                                                                            |
+| Habits          | Create/edit, pause/resume, no habit count limit, confirmed deletion, retained historical labels                                                                                                                   |
 | Administration  | Supported-activity dropdown, point-rule create/edit/delete, enable/disable, integer validation, unused activity filtering                                                                                         |
 | Shared behavior | Responsive navigation, keyboard focus, accessible dialogs, unsaved-change confirmation, unload protection, midnight draft preservation, retry/loading/empty states, recovery and not-found pages                  |
 | Branding        | Original SVG mark in the header and auth screens, SVG favicon, touch icon, local fonts and font licenses                                                                                                          |
@@ -21,8 +21,8 @@ The frontend is complete against contract v2 and integrated with the persistent 
 
 Verified on October 8, 2026:
 
-- Frontend lint, strict type checks, formatting, and 35 focused tests pass.
-- Both applications' root checks pass, including 16 backend unit tests, 24 isolated MongoDB integration tests, and contract synchronization.
+- Frontend lint, strict type checks, formatting, and 36 focused tests pass.
+- Both applications' root checks pass, including 16 backend unit tests, 25 isolated MongoDB integration tests, and contract synchronization.
 - Real production frontend build passes and excludes the device-local mock storage and transport. Public seeded demo credentials are intentionally included in the login panel.
 - Desktop and mobile screenshots were captured and inspected for every required screen. Mobile layouts were checked at 375 CSS pixels with no horizontal page overflow. Desktop review covered 1309 and 1440 CSS pixels.
 - Calendar selection, demo member/admin login, account switching, and saving an existing admin rule were checked through the preview.
@@ -46,8 +46,10 @@ The public brand is Wellness Tracker. The header, authentication screens, page t
 
 ## Usability update
 
-Page headers now show a compact description instead of decorative titles and eyebrows. The leaderboard uses one full-width table with colored leading ranks. Administration starts directly with the rule list and Add point rule. Today includes clear numeric logging controls, five-point star and bowel icons, and a prominent delete button below point activity. Calendar status uses full colored day circles. Insights use direct chart names and plain habit/day labels; the meal logging footnote and decorative encouragement panels were removed. Habits have a dedicated page.
+Page headers now show a compact description instead of decorative titles and eyebrows. The leaderboard uses one full-width table with only the current member highlighted. Administration starts directly with the rule list and Add point rule. Today includes clear numeric logging controls, five-point star and bowel icons, and a prominent delete button below point activity. Calendar status uses full colored day circles. Insights use direct chart names and plain habit/day labels; the meal logging footnote and decorative encouragement panels were removed. Habits have a dedicated page.
 
 An isolated local account verified that display-name and target edits persist when navigating away immediately. Review screenshots are saved as `revision-*.jpg` for registration, Today, Calendar, Insights, Leaderboard, Habits, Profile, and Administration at desktop and mobile sizes.
 
 Regression checks cover onboarding without targets, clearing all fields to zero logged fields, null-target scoring/rates, serialized autosave edits, failure/retry, and the fixed Thailand day boundary.
+
+Chart footnotes are removed; daily points show their selected-range total in the chart heading. The leaderboard header uses the same white date-chip treatment as Today. Numeric check-in inputs clamp typed values immediately to 24 hours and 12,000 ml. Habit creation and resuming have no count limit, and deleted habits cannot be accessed or restored through the API.

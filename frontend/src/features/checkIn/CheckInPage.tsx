@@ -63,7 +63,7 @@ function DateRecord({ date, today }: { date: string; today: string }) {
   });
   const habits = useQuery({
     queryKey: queryKeys.habits(),
-    queryFn: ({ signal }) => habitsApi.list(false, signal),
+    queryFn: ({ signal }) => habitsApi.list(signal),
   });
   const insights = useQuery({
     queryKey: queryKeys.insights(shiftDate(today, -6), today),

@@ -1,8 +1,10 @@
 // Generated from contracts/wellness.ts. Edit the source, then run npm run contracts:sync.
 import { z } from 'zod';
 
-export const CONTRACT_VERSION = '2.0.0';
+export const CONTRACT_VERSION = '2.1.0';
 export const THAILAND_TIMEZONE = 'Asia/Bangkok';
+export const MAX_SLEEP_HOURS = 24;
+export const MAX_WATER_ML = 12000;
 export const roleSchema = z.enum(['user', 'admin']);
 export const sleepQualitySchema = z.enum(['poor', 'fair', 'good', 'great']);
 export const moodSchema = z.union([
@@ -45,8 +47,8 @@ const emailSchema = z.string().trim().toLowerCase().pipe(z.email());
 const descriptionSchema = z.string().trim().max(200);
 export const goalsSchema = z
   .object({
-    sleepHours: z.number().min(0).max(24).nullable(),
-    waterMl: z.number().int().min(0).max(10000).nullable(),
+    sleepHours: z.number().min(0).max(MAX_SLEEP_HOURS).nullable(),
+    waterMl: z.number().int().min(0).max(MAX_WATER_ML).nullable(),
     mealsPerDay: z.number().int().min(0).max(10).nullable(),
     targetMood: moodSchema.nullable(),
     targetBowelStatus: bowelStatusSchema.nullable(),
@@ -94,7 +96,7 @@ export const profilePatchSchema = z
   .refine((v) => Object.keys(v).length > 0, 'Provide at least one field.');
 export const sleepSchema = z
   .object({
-    durationMinutes: z.number().int().min(0).max(1440).nullable(),
+    durationMinutes: z.number().int().min(0).max(MAX_SLEEP_HOURS * 60).nullable(),
     quality: sleepQualitySchema.nullable(),
   })
   .strict();
@@ -123,7 +125,6 @@ export const habitCompletionInputSchema = z
   .strict();
 const habitCompletionInputsSchema = z
   .array(habitCompletionInputSchema)
-  .max(100)
   .refine(
     (values) => new Set(values.map((v) => v.habitId)).size === values.length,
     'Habit identifiers must be unique.',
@@ -131,7 +132,7 @@ const habitCompletionInputsSchema = z
 export const checkInFieldsSchema = z
   .object({
     sleep: sleepSchema,
-    waterMl: z.number().int().min(0).max(10000).nullable(),
+    waterMl: z.number().int().min(0).max(MAX_WATER_ML).nullable(),
     mood: moodSchema.nullable(),
     meals: mealsSchema,
     alcoholStatus: alcoholStatusSchema.nullable(),

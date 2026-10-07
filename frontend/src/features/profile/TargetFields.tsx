@@ -1,6 +1,8 @@
 import { X } from 'lucide-react';
 import {
   type Goals,
+  MAX_SLEEP_HOURS,
+  MAX_WATER_ML,
   moodSchema,
   bowelStatusSchema,
 } from '../../types/contracts';
@@ -21,14 +23,14 @@ export function TargetFields({
     {
       key: 'sleepHours',
       label: 'Sleep target (hours)',
-      max: 24,
+      max: MAX_SLEEP_HOURS,
       step: 0.25,
       scale: 1,
     },
     {
       key: 'waterMl',
       label: 'Water target (liters)',
-      max: 10,
+      max: MAX_WATER_ML / 1000,
       step: 0.05,
       scale: 1000,
     },
@@ -60,8 +62,11 @@ export function TargetFields({
                     e.target.value === ''
                       ? null
                       : scale === 1000
-                        ? Math.round(Number(e.target.value) * scale)
-                        : Number(e.target.value),
+                        ? Math.round(
+                            Math.min(max, Math.max(0, Number(e.target.value))) *
+                              scale,
+                          )
+                        : Math.min(max, Math.max(0, Number(e.target.value))),
                 })
               }
             />

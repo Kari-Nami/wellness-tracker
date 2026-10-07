@@ -11,10 +11,12 @@ import { writeCheckIn, getCheckIn } from '../../services/checkInService';
 import {
   createHabit,
   updateHabit,
-  archiveHabit,
+  deleteHabit,
+  getHabit,
   listHabits,
 } from '../../services/habitService';
 import { Habit } from '../../models/Habit';
+import { seedPointRules } from '../../services/seedService';
 import { todayInZone, shiftDate } from '../../lib/dates';
 import { checkInDtoSchema, successEnvelope } from '../../types/contracts';
 beforeAll(prepareDatabase);
@@ -168,7 +170,7 @@ it('retains historical snapshots while normalizing current eligibility and valid
     habitCompletions: [{ habitId: h.id, completed: true }],
   });
   await updateHabit(a.user.id, h.id, { name: 'Renamed' });
-  await archiveHabit(a.user.id, h.id);
+  await deleteHabit(a.user.id, h.id);
   const old = await writeCheckIn(a.user.id, yesterday, { waterMl: 100 });
   expect(old.habitCompletions[0]).toMatchObject({
     habitNameSnapshot: 'Original',
@@ -183,26 +185,63 @@ it('retains historical snapshots while normalizing current eligibility and valid
       habitCompletions: [{ habitId: alien.id, completed: true }],
     }),
   ).rejects.toMatchObject({ status: 400 });
-  expect(await listHabits(a.user.id, false)).toHaveLength(0);
-  expect(await listHabits(a.user.id, true)).toHaveLength(1);
+  expect(await listHabits(a.user.id)).toHaveLength(0);
+  await expect(getHabit(a.user.id, h.id)).rejects.toMatchObject({
+    status: 404,
+  });
+  const { GET: listHabitRoute } = await import('../../app/api/habits/route');
+  const listed = await listHabitRoute(
+    request('/habits?includeArchived=true', 'GET', undefined, a.cookie),
+  );
+  expect((await listed.json()).data).toEqual([]);
   await expect(
     updateHabit(a.user.id, h.id, { active: true }),
-  ).rejects.toMatchObject({ status: 409 });
+  ).rejects.toMatchObject({ status: 404 });
 });
-it('enforces the active habit limit even for concurrent creation', async () => {
+it('allows more than ten active habits, concurrent additions, resuming, and check-ins with more than one hundred habit rows', async () => {
+  await seedPointRules();
   const { user } = await account();
-  for (let i = 0; i < 9; i++)
+  for (let i = 0; i < 15; i++)
     await createHabit(user.id, { name: 'Habit ' + i });
-  const results = await Promise.allSettled([
-    createHabit(user.id, { name: 'Ten' }),
-    createHabit(user.id, { name: 'Eleven' }),
+  await Promise.all([
+    createHabit(user.id, { name: 'Sixteen' }),
+    createHabit(user.id, { name: 'Seventeen' }),
   ]);
-  expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
-  expect(await Habit.countDocuments({ userId: user.id, active: true })).toBe(
-    10,
-  );
   const paused = await createHabit(user.id, { name: 'Paused', active: false });
+  await updateHabit(user.id, paused.id, { active: true });
+  expect(await listHabits(user.id)).toHaveLength(18);
+  await Habit.insertMany(
+    Array.from({ length: 85 }, (_, i) => ({
+      userId: user.id,
+      name: 'Extra ' + i,
+    })),
+  );
+  const habits = await listHabits(user.id);
+  const record = await writeCheckIn(user.id, undefined, {
+    localDate: today(),
+    habitCompletions: habits.map((h) => ({ habitId: h.id, completed: true })),
+  });
+  expect(checkInDtoSchema.parse(record).habitCompletions).toHaveLength(103);
+  expect(
+    record.pointAwards.filter((a) => a.triggerKey === 'HABIT_COMPLETE'),
+  ).toHaveLength(103);
+});
+it('accepts a 12000 ml reading and rejects values above the water and sleep limits', async () => {
+  const { user } = await account();
+  const record = await writeCheckIn(user.id, undefined, {
+    localDate: today(),
+    waterMl: 12000,
+    sleep: { durationMinutes: 1440, quality: 'good' },
+  });
+  expect(record.waterMl).toBe(12000);
+  expect(record.sleep.durationMinutes).toBe(1440);
   await expect(
-    updateHabit(user.id, paused.id, { active: true }),
-  ).rejects.toMatchObject({ status: 409 });
+    writeCheckIn(user.id, today(), { waterMl: 12001 }),
+  ).rejects.toBeDefined();
+  await expect(
+    writeCheckIn(user.id, today(), {
+      sleep: { durationMinutes: 1441, quality: 'good' },
+    }),
+  ).rejects.toBeDefined();
+  expect((await getCheckIn(user.id, today())).waterMl).toBe(12000);
 });

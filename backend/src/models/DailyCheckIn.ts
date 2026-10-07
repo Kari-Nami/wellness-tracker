@@ -10,6 +10,7 @@ import {
   bowelStatusSchema,
   sleepQualitySchema,
   triggerKeySchema,
+  MAX_WATER_ML,
 } from '../types/contracts';
 const meal = new Schema(
   {
@@ -89,7 +90,7 @@ const schema = new Schema(
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     localDate: { type: String, required: true, match: /^\d{4}-\d{2}-\d{2}$/ },
     sleep: { type: sleep, default: () => ({}), required: true },
-    waterMl: { type: Number, default: null, min: 0, max: 10000 },
+    waterMl: { type: Number, default: null, min: 0, max: MAX_WATER_ML },
     mood: { type: Number, default: null, enum: [1, 2, 3, 4, 5] },
     meals: { type: meals, default: () => ({}), required: true },
     alcoholStatus: {

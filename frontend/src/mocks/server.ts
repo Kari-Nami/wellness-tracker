@@ -253,20 +253,10 @@ async function dispatch(
     return response(record, create ? 201 : 200);
   }
   if (path === '/habits' && method === 'GET')
-    return response(
-      (db.habits[user.id] ?? []).filter(
-        (h) =>
-          url.searchParams.get('includeArchived') === 'true' || !h.deletedAt,
-      ),
-    );
+    return response((db.habits[user.id] ?? []).filter((h) => !h.deletedAt));
   if (path === '/habits' && method === 'POST') {
     const input = habitInputSchema.parse(payload);
     const habits = (db.habits[user.id] ??= []);
-    if (
-      input.active !== false &&
-      habits.filter((h) => h.active && !h.deletedAt).length >= 10
-    )
-      fail(409, 'CAPACITY_REACHED', 'You can have up to ten active habits.');
     const habit = {
       id: makeId(),
       name: input.name,
@@ -283,7 +273,7 @@ async function dispatch(
   if (path.startsWith('/habits/')) {
     const id = idSchema.parse(path.split('/')[2]);
     const habit =
-      (db.habits[user.id] ?? []).find((h) => h.id === id) ??
+      (db.habits[user.id] ?? []).find((h) => h.id === id && !h.deletedAt) ??
       fail(404, 'NOT_FOUND', 'This habit could not be found.');
     if (method === 'GET') return response(habit);
     if (method === 'DELETE') {
@@ -295,15 +285,6 @@ async function dispatch(
     }
     if (method === 'PATCH') {
       const input = habitPatchSchema.parse(payload);
-      if (habit.deletedAt)
-        fail(409, 'CONFLICT', 'An archived habit cannot be edited.');
-      if (
-        input.active &&
-        !habit.active &&
-        (db.habits[user.id] ?? []).filter((h) => h.active && !h.deletedAt)
-          .length >= 10
-      )
-        fail(409, 'CAPACITY_REACHED', 'You can have up to ten active habits.');
       Object.assign(habit, input, { updatedAt: now });
       persistDatabase();
       return response(habit);

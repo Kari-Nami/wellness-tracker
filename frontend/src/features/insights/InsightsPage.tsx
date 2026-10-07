@@ -195,50 +195,39 @@ export function InsightsPage() {
             {[
               {
                 title: 'Sleep trends',
-                description: 'Hours of rest across your selected days.',
                 field: 'sleepMinutes' as const,
                 color: '#7a915f',
                 label: 'Sleep',
                 unit: 'hours',
                 map: (v: number) => v / 60,
                 fmt: (v: number) => `${v.toFixed(1)} hrs`,
-                text: `Average ${sleepLabel(summary.averageSleepMinutes === null ? null : Math.round(summary.averageSleepMinutes))}. ${user!.goals.sleepHours === null ? '' : `Target ${user!.goals.sleepHours} hours.`}`,
               },
               {
                 title: 'Hydration trends',
-                description: 'Small sips add up.',
                 field: 'waterMl' as const,
                 color: '#5d908c',
                 label: 'Water',
                 unit: 'liters',
                 map: (v: number) => v / 1000,
                 fmt: (v: number) => `${v.toFixed(2)} L`,
-                text: `Average ${waterLabel(summary.averageWaterMl)}. ${user!.goals.waterMl === null ? '' : `Target ${waterLabel(user!.goals.waterMl)}.`}`,
               },
               {
                 title: 'Mood trends',
-                description: 'Your mood on a five-point scale.',
                 field: 'mood' as const,
                 color: '#a7767c',
                 label: 'Mood',
                 unit: '1 to 5',
                 map: (v: number) => v,
                 fmt: (v: number) => `${v} / 5`,
-                text:
-                  summary.averageMood === null
-                    ? 'No moods logged in this range.'
-                    : `Average mood ${summary.averageMood.toFixed(1)} of 5 across logged days.`,
               },
               {
                 title: 'Daily points earned',
-                description: 'Points earned for your daily activity.',
                 field: 'pointsEarned' as const,
                 color: '#9b814d',
                 label: 'Points',
-                unit: 'points',
+                unit: `Total ${summary.totalPoints.toLocaleString()} points`,
                 map: (v: number) => v,
                 fmt: (v: number) => `${v} pts`,
-                text: `${summary.totalPoints} points earned in this range.`,
               },
             ].map((chart) => (
               <section className="panel chart-panel" key={chart.field}>
@@ -261,12 +250,6 @@ export function InsightsPage() {
                   formatValue={chart.fmt}
                   domain={chart.field === 'mood' ? [1, 5] : undefined}
                 />
-                <p className="chart-summary">
-                  {chart.text}{' '}
-                  {chart.field === 'pointsEarned'
-                    ? 'Zero means no points earned for that day.'
-                    : 'Gaps mean not logged.'}
-                </p>
               </section>
             ))}
           </div>

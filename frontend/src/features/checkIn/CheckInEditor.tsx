@@ -28,6 +28,8 @@ import { queryKeys } from '../../api/queryKeys';
 import { invalidateWellness } from '../../api/invalidation';
 import {
   checkInPatchSchema,
+  MAX_SLEEP_HOURS,
+  MAX_WATER_ML,
   type CheckInDto,
   type HabitDto,
   type CheckInPatch,
@@ -274,7 +276,7 @@ export function CheckInEditor({
                     id="sleep-hours"
                     type="number"
                     min={0}
-                    max={24}
+                    max={MAX_SLEEP_HOURS}
                     step={0.25}
                     value={
                       draft.sleep.durationMinutes === null
@@ -287,7 +289,12 @@ export function CheckInEditor({
                         durationMinutes:
                           e.target.value === ''
                             ? null
-                            : Math.round(Number(e.target.value) * 60),
+                            : Math.round(
+                                Math.min(
+                                  MAX_SLEEP_HOURS,
+                                  Math.max(0, Number(e.target.value)),
+                                ) * 60,
+                              ),
                       })
                     }
                     placeholder="0"
@@ -360,13 +367,18 @@ export function CheckInEditor({
                     id="water-ml"
                     type="number"
                     min={0}
-                    max={10000}
+                    max={MAX_WATER_ML}
                     step={50}
                     value={draft.waterMl ?? ''}
                     onChange={(e) =>
                       update(
                         'waterMl',
-                        e.target.value === '' ? null : Number(e.target.value),
+                        e.target.value === ''
+                          ? null
+                          : Math.min(
+                              MAX_WATER_ML,
+                              Math.max(0, Math.round(Number(e.target.value))),
+                            ),
                       )
                     }
                     placeholder="Not logged"
@@ -386,11 +398,11 @@ export function CheckInEditor({
                 </button>
                 <Button
                   variant="secondary"
-                  disabled={(draft.waterMl ?? 0) > 9750}
+                  disabled={(draft.waterMl ?? 0) > MAX_WATER_ML - 250}
                   onClick={() =>
                     update(
                       'waterMl',
-                      Math.min(10000, (draft.waterMl ?? 0) + 250),
+                      Math.min(MAX_WATER_ML, (draft.waterMl ?? 0) + 250),
                     )
                   }
                 >
