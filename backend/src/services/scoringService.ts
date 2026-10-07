@@ -5,7 +5,7 @@ import { PointRule } from '../models/PointRule';
 import type { UserRecord } from '../models/User';
 import { toCheckInDto, toHabitDto, toUserDto } from '../lib/dto';
 import { todayInZone } from '../lib/dates';
-import { streakHistory } from './streakService';
+import { streakHistory, alcoholFreeStreakHistory } from './streakService';
 import { habitsForDate } from './habitEligibility';
 import { triggerRegistry, streakKeys } from './triggerRegistry';
 import type { CheckInDto } from '../types/contracts';
@@ -13,6 +13,7 @@ export async function reconcileAwards(
   user: HydratedDocument<UserRecord>,
   editedDate: string | ReadonlySet<string>,
   session: ClientSession,
+  priorRecord?: CheckInDto | null,
 ) {
   const history = await DailyCheckIn.find({ userId: user._id })
     .sort({ localDate: 1 })
@@ -24,6 +25,17 @@ export async function reconcileAwards(
   const dtos = history.map((r) => toCheckInDto(r));
   const today = todayInZone(user.timezone);
   const streak = streakHistory(dtos, today);
+  const alcoholFree = alcoholFreeStreakHistory(dtos, today);
+  const before =
+    priorRecord === undefined
+      ? null
+      : dtos
+          .filter((r) => r.localDate !== editedDate)
+          .concat(priorRecord ? [priorRecord] : []);
+  const priorStreak = before ? streakHistory(before, today) : null;
+  const priorAlcoholFree = before
+    ? alcoholFreeStreakHistory(before, today)
+    : null;
   const goals = toUserDto(user).goals;
   for (let i = 0; i < history.length; i++) {
     const record = history[i];
@@ -48,6 +60,7 @@ export async function reconcileAwards(
         checkIn: dto,
         goals,
         runLength: streak.runs.get(dto.localDate) ?? 0,
+        alcoholFreeRunLength: alcoholFree.runs.get(dto.localDate) ?? 0,
         eligibleHabitIds,
       })) {
         const previous = dto.pointAwards.find(
@@ -55,6 +68,21 @@ export async function reconcileAwards(
         );
         if (previous) desired.set(instanceKey, previous);
         else {
+          // Add milestones on other dates only when this edit changes their consecutive run.
+          const priorRuns = trigger.key.startsWith('ALCOHOL_FREE_STREAK_')
+            ? priorAlcoholFree?.runs
+            : priorStreak?.runs;
+          const nextRuns = trigger.key.startsWith('ALCOHOL_FREE_STREAK_')
+            ? alcoholFree.runs
+            : streak.runs;
+          if (
+            !direct &&
+            streakKeys.has(trigger.key) &&
+            before &&
+            (priorRuns?.get(dto.localDate) ?? 0) ===
+              (nextRuns.get(dto.localDate) ?? 0)
+          )
+            continue;
           const rule = rules.find(
             (r) => r.triggerKey === trigger.key && r.enabled,
           );

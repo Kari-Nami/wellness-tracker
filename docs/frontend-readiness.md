@@ -1,6 +1,6 @@
 # Frontend readiness
 
-The frontend is complete against contract v2 and integrated with the persistent backend. The Docker stack is ready for final local acceptance. VM deployment remains with the project owner.
+The frontend is complete against contract v2.2 and integrated with the persistent backend. The Docker stack is ready for final local acceptance. VM deployment remains with the project owner.
 
 ## Implemented scope
 
@@ -21,8 +21,8 @@ The frontend is complete against contract v2 and integrated with the persistent 
 
 Verified on October 8, 2026:
 
-- Frontend lint, strict type checks, formatting, and 36 focused tests pass.
-- Both applications' root checks pass, including 16 backend unit tests, 25 isolated MongoDB integration tests, and contract synchronization.
+- Frontend lint, strict type checks, formatting, and 37 focused tests pass.
+- Both applications' root checks pass, including 25 backend unit tests, 28 isolated MongoDB integration tests, and contract synchronization.
 - Real production frontend build passes and excludes the device-local mock storage and transport. Public seeded demo credentials are intentionally included in the login panel.
 - Desktop and mobile screenshots were captured and inspected for every required screen. Mobile layouts were checked at 375 CSS pixels with no horizontal page overflow. Desktop review covered 1309 and 1440 CSS pixels.
 - Calendar selection, demo member/admin login, account switching, and saving an existing admin rule were checked through the preview.
@@ -53,3 +53,5 @@ An isolated local account verified that display-name and target edits persist wh
 Regression checks cover onboarding without targets, clearing all fields to zero logged fields, null-target scoring/rates, serialized autosave edits, failure/retry, and the fixed Thailand day boundary.
 
 Chart footnotes are removed; daily points show their selected-range total in the chart heading. The leaderboard header uses the same white date-chip treatment as Today. Numeric check-in inputs clamp typed values immediately to 24 hours and 12,000 ml. Habit creation and resuming have no count limit, and deleted habits cannot be accessed or restored through the API.
+
+The community board heading uses the points star. Administration supports twenty configurable scoring activities, with logging and target awards, a main-meal bonus, and 7/10/30-day alcohol-free milestones. New rule seeds preserve existing configuration and stored awards; repeated saves and historical corrections are covered by scoring regressions.

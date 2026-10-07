@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Trophy, Flame, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Trophy, Flame, Star, ShieldCheck, ArrowRight } from 'lucide-react';
 import { leaderboardApi } from '../../api/leaderboard';
 import { queryKeys } from '../../api/queryKeys';
 import { useAuth } from '../auth/context';
@@ -69,7 +69,7 @@ export function LeaderboardPage() {
                     {rows.length} people, making time for themselves.
                   </p>
                 </div>
-                <Flame size={18} />
+                <Star size={18} />
               </div>
               <table>
                 <caption className="sr-only">

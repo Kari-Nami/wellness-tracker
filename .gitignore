@@ -13,3 +13,4 @@ coverage/
 .instructions/
 __pycache__/
 *.pyc
+.idea/

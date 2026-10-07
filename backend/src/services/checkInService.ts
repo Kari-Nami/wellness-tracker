@@ -124,9 +124,8 @@ export async function writeCheckIn(
       throw new AppError(409, 'CONFLICT', 'This date already has a check-in.');
     const record = previous ?? new DailyCheckIn({ userId, localDate });
     const habits = await Habit.find({ userId }).session(session);
-    const existing = previous
-      ? toCheckInDto(previous).habitCompletions
-      : undefined;
+    const priorRecord = previous ? toCheckInDto(previous) : null;
+    const existing = priorRecord?.habitCompletions;
     const rows = rowsForDate(
       habits.map(toHabitDto),
       localDate,
@@ -154,7 +153,7 @@ export async function writeCheckIn(
     record.set(fields);
     record.set('habitCompletions', rows);
     await record.save({ session });
-    const scored = await reconcileAwards(user, localDate, session);
+    const scored = await reconcileAwards(user, localDate, session, priorRecord);
     return toCheckInDto(
       scored.history.find((r) => r.localDate === localDate)!,
       scored.currentStreak,
@@ -165,16 +164,16 @@ export async function deleteCheckIn(userId: string, date: string) {
   localDateSchema.parse(date);
   return withUserTransaction(userId, async (user, session) => {
     validateWritableDate(date, user.timezone);
-    const deleted = await DailyCheckIn.deleteOne({
+    const deleted = await DailyCheckIn.findOneAndDelete({
       userId,
       localDate: date,
     }).session(session);
-    if (!deleted.deletedCount)
+    if (!deleted)
       throw new AppError(
         404,
         'NOT_FOUND',
         'No check-in has been recorded for this day.',
       );
-    await reconcileAwards(user, date, session);
+    await reconcileAwards(user, date, session, toCheckInDto(deleted));
   });
 }

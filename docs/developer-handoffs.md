@@ -1,6 +1,6 @@
 # Developer map
 
-The complete frontend and backend are implemented and integrated against contract v2. Future changes should preserve these boundaries and include verification appropriate to the affected behavior.
+The complete frontend and backend are implemented and integrated against contract v2.2. Future changes should preserve these boundaries and include verification appropriate to the affected behavior.
 
 ## Frontend
 
@@ -30,3 +30,5 @@ Edit `contracts/wellness.ts` for agreed API changes, then run `npm run contracts
 Deployment remains three application services: frontend, backend, and private MongoDB. The temporary local `temp-gateway` and operations tooling are optional development/maintenance services. Existing host Nginx and Certbot own public ingress on the VM. Follow `docs/deployment.md` before changing routing, database topology, or credentials.
 
 The project owner performs final local acceptance and deploys to the VM. No publication or VM changes have been performed as part of implementation.
+
+The canonical point-trigger definitions provide twenty keys, labels, descriptions, and seed values. Backend predicates remain in `triggerRegistry.ts`. Scoring receives the pre-edit record to distinguish changed milestone runs from unrelated history. The explicit frontend mock mirrors the same award identities and qualification semantics.

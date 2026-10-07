@@ -159,7 +159,7 @@ checkIn = await data(
   await response('/check-ins/' + date, 'PATCH', complete, cookie),
   checkInDtoSchema,
 );
-assert.equal(checkIn.pointsEarned, 26);
+assert.equal(checkIn.pointsEarned, 36);
 assert.equal(checkIn.currentStreak, 1);
 await Promise.all([
   response('/check-ins/' + date, 'PATCH', { mood: 5 }, cookie),
@@ -171,7 +171,7 @@ const after = await data(
 );
 assert.equal(after.mood, 5);
 assert.equal(after.waterMl, 2100);
-assert.equal(after.pointsEarned, 26);
+assert.equal(after.pointsEarned, 36);
 assert.deepEqual(after.pointAwards, checkIn.pointAwards);
 const other = await response(
   '/auth/register',
@@ -213,7 +213,7 @@ const insights = await data(
   insightsDtoSchema,
 );
 assert.equal(insights.dayCount, 2);
-assert.equal(insights.summary.totalPoints, 26);
+assert.equal(insights.summary.totalPoints, 36);
 assert.equal(insights.summary.waterGoalRate, 0);
 assert.equal(insights.days[0].waterMl, null);
 let rows = await data(
@@ -229,7 +229,7 @@ rows = await data(
   await response('/leaderboard', 'GET', undefined, cookie),
   z.array(leaderboardEntrySchema),
 );
-assert.equal(rows.find((r) => r.isCurrentUser)?.points, 26);
+assert.equal(rows.find((r) => r.isCurrentUser)?.points, 36);
 const operator = await response('/auth/login', 'POST', {
   email: process.env.ADMIN_EMAIL,
   password: process.env.ADMIN_PASSWORD,
@@ -246,7 +246,7 @@ assert.equal(
       z.array(pointTriggerDtoSchema),
     )
   ).length,
-  8,
+  20,
 );
 const water = rules.find((r) => r.triggerKey === 'WATER_GOAL_REACHED')!;
 assert.ok(water);
@@ -261,7 +261,7 @@ try {
     await response('/check-ins/' + date, 'PATCH', { mood: 4 }, cookie),
     checkInDtoSchema,
   );
-  assert.equal(repriced.pointsEarned, 23); // Current water goal disqualifies only that award.
+  assert.equal(repriced.pointsEarned, 33); // Current water goal disqualifies only that award.
 } finally {
   await response(
     '/admin/point-rules/' + water.id,

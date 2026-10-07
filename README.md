@@ -1,6 +1,6 @@
 # Wellness Tracker
 
-A responsive wellness tracker with daily check-ins, habits, personal targets, calendar history, insights, points, and a privacy-controlled leaderboard. React and Vite serve the frontend; a separate Next.js REST API persists data in MongoDB. The original SVG identity appears in the application, favicon, and touch icon.
+A wellness tracker with daily check-ins, habits, personal targets, calendar history, insights, points, and a privacy-controlled leaderboard. React and Vite serve the frontend; a separate Next.js REST API persists data in MongoDB. The original SVG identity appears in the application, favicon, and touch icon.
 
 ## Run the complete stack locally
 

@@ -21,6 +21,19 @@ export function runEnding(records: Record<string, CheckInDto>, date: string) {
     count++;
   return count;
 }
+export function alcoholFreeRunEnding(
+  records: Record<string, CheckInDto>,
+  date: string,
+) {
+  let count = 0;
+  for (
+    let day = date;
+    records[day]?.alcoholStatus === 'none';
+    day = shiftDate(day, -1)
+  )
+    count++;
+  return count;
+}
 export function currentStreak(
   records: Record<string, CheckInDto>,
   today: string,
@@ -47,10 +60,17 @@ export function reconcile(
   db: DemoDatabase,
   user: UserDto,
   editedDate?: string,
+  priorRecord?: CheckInDto | null,
 ) {
   const records = db.records[user.id] ?? {};
   const habits = db.habits[user.id] ?? [];
   const today = todayInZone(user.timezone);
+  const before =
+    editedDate && priorRecord !== undefined ? { ...records } : null;
+  if (before && editedDate) {
+    if (priorRecord) before[editedDate] = priorRecord;
+    else delete before[editedDate];
+  }
   for (const record of Object.values(records)) {
     const count = recordedFields(record as Required<CheckInPatch>);
     record.completedFieldCount = count;
@@ -74,6 +94,38 @@ export function reconcile(
       keys.set('SLEEP_GOAL_REACHED', 'SLEEP_GOAL_REACHED');
     if (record.alcoholStatus !== null)
       keys.set('ALCOHOL_STATUS_LOGGED', 'ALCOHOL_STATUS_LOGGED');
+    if (record.waterMl !== null) keys.set('WATER_LOGGED', 'WATER_LOGGED');
+    if (record.sleep.durationMinutes !== null)
+      keys.set('SLEEP_LOGGED', 'SLEEP_LOGGED');
+    if (record.mood !== null) keys.set('MOOD_LOGGED', 'MOOD_LOGGED');
+    if (record.bowelStatus !== null)
+      keys.set('BOWEL_STATUS_LOGGED', 'BOWEL_STATUS_LOGGED');
+    if (
+      user.goals.targetMood !== null &&
+      record.mood !== null &&
+      record.mood >= user.goals.targetMood
+    )
+      keys.set('MOOD_GOAL_REACHED', 'MOOD_GOAL_REACHED');
+    if (
+      user.goals.targetBowelStatus !== null &&
+      record.bowelStatus === user.goals.targetBowelStatus
+    )
+      keys.set('BOWEL_GOAL_REACHED', 'BOWEL_GOAL_REACHED');
+    const mainMeals = ['breakfast', 'lunch', 'dinner'] as const;
+    for (const key of mainMeals)
+      if (record.meals[key].status !== 'not_logged')
+        keys.set('MEAL_LOGGED:' + key, 'MEAL_LOGGED');
+    const eaten =
+      mainMeals.filter((key) => record.meals[key].status === 'eaten').length +
+      record.meals.snacks.length;
+    if (
+      user.goals.mealsPerDay !== null &&
+      eaten > 0 &&
+      eaten >= user.goals.mealsPerDay
+    )
+      keys.set('MEAL_GOAL_REACHED', 'MEAL_GOAL_REACHED');
+    if (mainMeals.every((key) => record.meals[key].status === 'eaten'))
+      keys.set('ALL_MAIN_MEALS_EATEN', 'ALL_MAIN_MEALS_EATEN');
     const eligible = new Set(
       relevantHabits(habits, record.localDate, user.timezone).map((h) => h.id),
     );
@@ -90,7 +142,14 @@ export function reconcile(
     const run = runEnding(records, record.localDate);
     if (run === 7) keys.set('CHECKIN_STREAK_7', 'CHECKIN_STREAK_7');
     if (run === 30) keys.set('CHECKIN_STREAK_30', 'CHECKIN_STREAK_30');
-    const isStreak = (key: string) => key.startsWith('CHECKIN_STREAK_');
+    const alcoholFreeRun = alcoholFreeRunEnding(records, record.localDate);
+    for (const milestone of [7, 10, 30] as const) {
+      const key = `ALCOHOL_FREE_STREAK_${milestone}` as TriggerKey;
+      if (alcoholFreeRun === milestone) keys.set(key, key);
+    }
+    const isStreak = (key: string) =>
+      key.startsWith('CHECKIN_STREAK_') ||
+      key.startsWith('ALCOHOL_FREE_STREAK_');
     const applies = (key: string) =>
       !editedDate || record.localDate === editedDate || isStreak(key);
     record.pointAwards = record.pointAwards.filter(
@@ -102,6 +161,13 @@ export function reconcile(
         record.pointAwards.some((a) => a.instanceKey === instanceKey)
       )
         continue;
+      if (before && record.localDate !== editedDate && isStreak(triggerKey)) {
+        const run = triggerKey.startsWith('ALCOHOL_FREE_STREAK_')
+          ? alcoholFreeRunEnding
+          : runEnding;
+        if (run(before, record.localDate) === run(records, record.localDate))
+          continue;
+      }
       const rule = db.rules.find(
         (r) => r.triggerKey === triggerKey && r.enabled,
       );

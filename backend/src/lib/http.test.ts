@@ -8,7 +8,7 @@ describe('route responses', () => {
     const response = GET();
     expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({
-      data: { status: 'ok', contractVersion: '2.1.0' },
+      data: { status: 'ok', contractVersion: '2.2.0' },
     });
   });
   it('maps payload validation to 400 and domain conflicts to 409', async () => {

@@ -3,13 +3,22 @@ export function streakHistory(
   records: readonly { localDate: string; completion: string }[],
   today: string,
 ) {
-  const dates = [
-    ...new Set(
-      records
-        .filter((r) => r.completion === 'complete' && r.localDate <= today)
-        .map((r) => r.localDate),
-    ),
-  ].sort();
+  return consecutiveDateRuns(
+    records.filter((r) => r.completion === 'complete').map((r) => r.localDate),
+    today,
+  );
+}
+export function alcoholFreeStreakHistory(
+  records: readonly { localDate: string; alcoholStatus: string | null }[],
+  today: string,
+) {
+  return consecutiveDateRuns(
+    records.filter((r) => r.alcoholStatus === 'none').map((r) => r.localDate),
+    today,
+  );
+}
+function consecutiveDateRuns(input: readonly string[], today: string) {
+  const dates = [...new Set(input.filter((date) => date <= today))].sort();
   const runs = new Map<string, number>();
   let previous = '';
   let length = 0;

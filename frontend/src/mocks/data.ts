@@ -1,5 +1,6 @@
 import {
   DEFAULT_GOALS,
+  POINT_TRIGGER_DEFINITIONS,
   type UserDto,
   type CheckInDto,
   type HabitDto,
@@ -23,48 +24,12 @@ export interface DemoDatabase {
 }
 export const makeId = () =>
   crypto.randomUUID().replaceAll('-', '').slice(0, 24);
-export const triggerDefinitions: PointTriggerDto[] = [
-  {
-    key: 'DAILY_CHECKIN_COMPLETE',
-    label: 'Complete daily check-in',
-    description: 'Record all nine required daily fields.',
-  },
-  {
-    key: 'HABIT_COMPLETE',
-    label: 'Complete a daily habit',
-    description: 'Awarded once per completed daily habit.',
-  },
-  {
-    key: 'ALL_DAILY_HABITS_COMPLETE',
-    label: 'Complete all daily habits',
-    description: 'Complete every daily habit, with at least one habit.',
-  },
-  {
-    key: 'WATER_GOAL_REACHED',
-    label: 'Reach water target',
-    description: 'Record water intake at or above the personal target.',
-  },
-  {
-    key: 'SLEEP_GOAL_REACHED',
-    label: 'Reach sleep target',
-    description: 'Record sleep duration at or above the personal target.',
-  },
-  {
-    key: 'ALCOHOL_STATUS_LOGGED',
-    label: 'Log alcohol status',
-    description: 'Rewards logging any supported alcohol status.',
-  },
-  {
-    key: 'CHECKIN_STREAK_7',
-    label: 'Seven-day check-in streak',
-    description: 'Reach exactly seven consecutive complete check-ins.',
-  },
-  {
-    key: 'CHECKIN_STREAK_30',
-    label: 'Thirty-day check-in streak',
-    description: 'Reach exactly thirty consecutive complete check-ins.',
-  },
-];
+export const triggerDefinitions: PointTriggerDto[] =
+  POINT_TRIGGER_DEFINITIONS.map(({ key, label, description }) => ({
+    key,
+    label,
+    description,
+  }));
 export function createDemoDatabase(): DemoDatabase {
   const timezone = detectedTimezone();
   const today = todayInZone(timezone);
@@ -106,11 +71,10 @@ export function createDemoDatabase(): DemoDatabase {
     createdAt,
     updatedAt: now,
   }));
-  const values = [10, 3, 5, 3, 3, 2, 20, 50];
   const rules = triggerDefinitions.map((trigger, index): PointRuleDto => ({
-    id: `00000000000000000000010${index}`,
+    id: (256 + index).toString(16).padStart(24, '0'),
     triggerKey: trigger.key,
-    points: values[index],
+    points: POINT_TRIGGER_DEFINITIONS[index].defaultPoints,
     enabled: true,
     createdAt,
     updatedAt: now,

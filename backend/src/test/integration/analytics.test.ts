@@ -80,7 +80,7 @@ it('emits every calendar day and uses logged values, eligible pairs, and stored 
     averageWaterMl: 1000,
     waterGoalRate: 50,
     averageMood: 4,
-    totalPoints: 36,
+    totalPoints: 45,
     currentStreak: 1,
     longestStreak: 1,
   });
@@ -108,7 +108,7 @@ it('emits every calendar day and uses logged values, eligible pairs, and stored 
     ).json(),
   ).data;
   expect(changed.summary.waterGoalRate).toBe(0);
-  expect(changed.summary.totalPoints).toBe(36);
+  expect(changed.summary.totalPoints).toBe(45);
   expect(changed.habits[0].name).toBe('Evening walk');
   const subset = successEnvelope(insightsDtoSchema).parse(
     await (
@@ -190,7 +190,7 @@ it('ranks zero-score participants, hides opted-out members and operators, and ex
   expect(rows[0]).toMatchObject({
     rank: 1,
     displayName: 'Other',
-    points: 3,
+    points: 4,
     isCurrentUser: false,
   });
   expect(rows[1]).toMatchObject({

@@ -198,14 +198,17 @@ async function dispatch(
       });
     }
     if (method === 'DELETE') {
-      recordFor(user, localDate);
+      const priorRecord = structuredClone(recordFor(user, localDate));
       delete db.records[user.id][localDate];
-      reconcile(db, user, localDate);
+      reconcile(db, user, localDate, priorRecord);
       persistDatabase();
       return deleted();
     }
     if (create && db.records[user.id]?.[localDate])
       fail(409, 'CONFLICT', 'This date already has a check-in.');
+    const priorRecord = create
+      ? null
+      : structuredClone(recordFor(user, localDate));
     const record: CheckInDto = create
       ? {
           ...emptyCheckIn(),
@@ -248,7 +251,7 @@ async function dispatch(
     }
     db.records[user.id] ??= {};
     db.records[user.id][localDate] = record;
-    reconcile(db, user, localDate);
+    reconcile(db, user, localDate, priorRecord);
     persistDatabase();
     return response(record, create ? 201 : 200);
   }

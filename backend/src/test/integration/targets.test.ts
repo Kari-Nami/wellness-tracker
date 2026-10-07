@@ -39,17 +39,17 @@ it('registers without targets or a timezone field and allows all targets to be r
   expect(
     (await writeCheckIn(user.id, undefined, { localDate: date, ...fields }))
       .pointsEarned,
-  ).toBe(12);
+  ).toBe(19);
   user = await updateProfile(user.id, {
     goals: { ...DEFAULT_GOALS, sleepHours: 8, waterMl: 2000 },
   });
   expect((await writeCheckIn(user.id, date, { mood: 4 })).pointsEarned).toBe(
-    18,
+    25,
   );
   user = await updateProfile(user.id, { goals: DEFAULT_GOALS });
-  expect((await getCheckIn(user.id, date)).pointsEarned).toBe(18);
+  expect((await getCheckIn(user.id, date)).pointsEarned).toBe(25);
   expect((await writeCheckIn(user.id, date, { mood: 4 })).pointsEarned).toBe(
-    12,
+    19,
   );
   const insights = computeInsights(
     await loadInsightSource(user, { from: date, to: date }),

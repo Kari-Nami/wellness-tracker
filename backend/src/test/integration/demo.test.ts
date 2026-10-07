@@ -45,7 +45,7 @@ it('seeds rich member accounts and an authentic administrator with no public lea
         ),
       );
       expect(result.status).toBe(200);
-      expect((await result.json()).data).toHaveLength(8);
+      expect((await result.json()).data).toHaveLength(20);
       continue;
     }
     expect(user).not.toHaveProperty('demoKey');

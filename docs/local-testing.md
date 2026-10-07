@@ -38,7 +38,7 @@ The member demos include ninety days of sample check-ins, meal descriptions, hab
 - [ ] Add or correct an earlier calendar day, then delete a disposable day. Future dates must remain read-only.
 - [ ] Change or clear personal targets, edit your display name, and toggle leaderboard participation. Verify automatic save feedback and opt-out. All dates use Thailand time.
 - [ ] Inspect 7/30/90-day and custom insights, including missing dates and single readings.
-- [ ] Sign in as the operator, adjust a rule, disable it, and recreate a deleted rule. Existing qualifying awards must retain their historical values.
+- [ ] Sign in as the operator, inspect all twenty supported rules, adjust a rule, disable it, and recreate a deleted rule. Existing qualifying awards must retain their historical values.
 - [ ] Check mobile navigation, Save controls, dialogs, and unsaved-change protection.
 
 Automated checks:
@@ -80,4 +80,4 @@ Open `http://localhost:5173`. Native development uses a separate loopback MongoD
 
 ## Verified implementation
 
-On October 8, 2026, 36 frontend tests, 16 backend unit tests, 25 real MongoDB integration tests, both production builds, routing-renderer tests, authenticated Docker startup, HTTP stack smoke, browser session/check-in persistence, desktop/mobile screenshot review, and a local backup/restore round trip passed. Hosted CI and VM acceptance require the later repository publication and owner deployment.
+On October 8, 2026, 37 frontend tests, 25 backend unit tests, 28 real MongoDB integration tests, both production builds, routing-renderer tests, authenticated Docker startup, HTTP stack smoke, browser session/check-in persistence, desktop/mobile screenshot review, and a local backup/restore round trip passed. Hosted CI and VM acceptance require the later repository publication and owner deployment.

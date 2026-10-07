@@ -48,7 +48,7 @@ it('awards each trigger once, handles zero habits, and reverses disqualified awa
     localDate: today(),
     ...complete,
   });
-  expect(record.pointsEarned).toBe(18);
+  expect(record.pointsEarned).toBe(25);
   expect(
     record.pointAwards.some(
       (a) => a.triggerKey === 'ALL_DAILY_HABITS_COMPLETE',
@@ -58,7 +58,7 @@ it('awards each trigger once, handles zero habits, and reverses disqualified awa
   record = await writeCheckIn(user.id, today(), {
     habitCompletions: [{ habitId: h.id, completed: true }],
   });
-  expect(record.pointsEarned).toBe(26);
+  expect(record.pointsEarned).toBe(33);
   await Promise.all([
     writeCheckIn(user.id, today(), { waterMl: 2000 }),
     writeCheckIn(user.id, today(), { mood: 4 }),
@@ -69,11 +69,11 @@ it('awards each trigger once, handles zero habits, and reverses disqualified awa
     waterMl: null,
     habitCompletions: [],
   });
-  expect(record.pointsEarned).toBe(5);
+  expect(record.pointsEarned).toBe(11);
   expect(record.completion).toBe('partial');
   record = await writeCheckIn(user.id, today(), { waterMl: 0 });
   expect(record.completedFieldCount).toBe(9);
-  expect(record.pointsEarned).toBe(15);
+  expect(record.pointsEarned).toBe(22);
 });
 it('preserves qualifying historical values across edits, disabling, deletion, and repricing', async () => {
   const { user } = await account();
@@ -83,18 +83,18 @@ it('preserves qualifying historical values across edits, disabling, deletion, an
     { $set: { points: 99, enabled: false } },
   );
   expect((await writeCheckIn(user.id, today(), { mood: 4 })).pointsEarned).toBe(
-    3,
+    5,
   );
   await PointRule.deleteOne({ triggerKey: 'WATER_GOAL_REACHED' });
   expect((await writeCheckIn(user.id, today(), { mood: 3 })).pointsEarned).toBe(
-    3,
+    5,
   );
   expect(
     (await writeCheckIn(user.id, today(), { waterMl: 0 })).pointsEarned,
-  ).toBe(0);
+  ).toBe(2);
   expect(
     (await writeCheckIn(user.id, today(), { waterMl: 2000 })).pointsEarned,
-  ).toBe(0);
+  ).toBe(2);
   await seedPointRules();
   await PointRule.updateOne(
     { triggerKey: 'WATER_GOAL_REACHED' },
@@ -102,7 +102,7 @@ it('preserves qualifying historical values across edits, disabling, deletion, an
   );
   expect(
     (await writeCheckIn(user.id, today(), { waterMl: 2000 })).pointsEarned,
-  ).toBe(9);
+  ).toBe(11);
 });
 it('moves and removes streak milestones after historical backfills and deletion without repricing unrelated awards', async () => {
   const { user } = await account();
@@ -192,7 +192,7 @@ it('guards admin CRUD, immutable keys, uniqueness, and safe trigger metadata', a
       )
     ).json()
   ).data;
-  expect(metadata).toHaveLength(8);
+  expect(metadata).toHaveLength(20);
   expect(Object.keys(metadata[0])).toEqual(['key', 'label', 'description']);
   expect(
     (
@@ -284,7 +284,7 @@ it('seeds idempotently, preserves rule configuration, and promotes an existing o
   expect(after.points).toBe(7);
   expect(after.enabled).toBe(false);
   expect(after.updatedAt.toISOString()).toBe(timestamp);
-  expect(await PointRule.countDocuments()).toBe(8);
+  expect(await PointRule.countDocuments()).toBe(20);
   const { user } = await account('Operator');
   const hash = (await User.findById(user.id).select('+passwordHash'))!
     .passwordHash;

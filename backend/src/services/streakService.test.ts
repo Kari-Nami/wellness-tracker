@@ -38,3 +38,23 @@ it('handles yesterday grace, gaps, duplicate dates, and ignores future dates', (
     longest: 2,
   });
 });
+
+it('counts explicit alcohol-free days independently of completion, breaks on missing or other statuses, and ignores future days', async () => {
+  const { alcoholFreeStreakHistory } = await import('./streakService');
+  const records = [
+    { localDate: '2026-10-01', alcoholStatus: 'none' },
+    { localDate: '2026-10-02', alcoholStatus: 'none' },
+    { localDate: '2026-10-03', alcoholStatus: 'light' },
+    { localDate: '2026-10-04', alcoholStatus: 'none' },
+    { localDate: '2026-10-06', alcoholStatus: 'none' },
+    { localDate: '2026-10-07', alcoholStatus: null },
+    { localDate: '2026-10-08', alcoholStatus: 'none' },
+    { localDate: '2026-10-09', alcoholStatus: 'none' },
+  ];
+  const result = alcoholFreeStreakHistory(records, '2026-10-08');
+  expect(result.runs.get('2026-10-02')).toBe(2);
+  expect(result.runs.get('2026-10-04')).toBe(1);
+  expect(result.runs.get('2026-10-06')).toBe(1);
+  expect(result.runs.get('2026-10-08')).toBe(1);
+  expect(result.runs.has('2026-10-09')).toBe(false);
+});

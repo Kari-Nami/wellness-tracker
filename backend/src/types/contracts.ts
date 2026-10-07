@@ -1,7 +1,7 @@
 // Generated from contracts/wellness.ts. Edit the source, then run npm run contracts:sync.
 import { z } from 'zod';
 
-export const CONTRACT_VERSION = '2.1.0';
+export const CONTRACT_VERSION = '2.2.0';
 export const THAILAND_TIMEZONE = 'Asia/Bangkok';
 export const MAX_SLEEP_HOURS = 24;
 export const MAX_WATER_ML = 12000;
@@ -36,6 +36,18 @@ export const triggerKeySchema = z.enum([
   'ALCOHOL_STATUS_LOGGED',
   'CHECKIN_STREAK_7',
   'CHECKIN_STREAK_30',
+  'WATER_LOGGED',
+  'SLEEP_LOGGED',
+  'MOOD_LOGGED',
+  'BOWEL_STATUS_LOGGED',
+  'MOOD_GOAL_REACHED',
+  'BOWEL_GOAL_REACHED',
+  'MEAL_LOGGED',
+  'MEAL_GOAL_REACHED',
+  'ALL_MAIN_MEALS_EATEN',
+  'ALCOHOL_FREE_STREAK_7',
+  'ALCOHOL_FREE_STREAK_10',
+  'ALCOHOL_FREE_STREAK_30',
 ]);
 export const idSchema = z
   .string()
@@ -96,7 +108,12 @@ export const profilePatchSchema = z
   .refine((v) => Object.keys(v).length > 0, 'Provide at least one field.');
 export const sleepSchema = z
   .object({
-    durationMinutes: z.number().int().min(0).max(MAX_SLEEP_HOURS * 60).nullable(),
+    durationMinutes: z
+      .number()
+      .int()
+      .min(0)
+      .max(MAX_SLEEP_HOURS * 60)
+      .nullable(),
     quality: sleepQualitySchema.nullable(),
   })
   .strict();
@@ -344,3 +361,134 @@ export type TriggerKey = z.infer<typeof triggerKeySchema>;
 export type LeaderboardEntry = z.infer<typeof leaderboardEntrySchema>;
 export type InsightsDto = z.infer<typeof insightsDtoSchema>;
 export type DateRange = z.infer<typeof dateRangeSchema>;
+
+export const POINT_TRIGGER_DEFINITIONS: readonly (PointTriggerDto & {
+  defaultPoints: number;
+})[] = [
+  {
+    key: 'DAILY_CHECKIN_COMPLETE',
+    label: 'Complete daily check-in',
+    description: 'Log all nine required wellness fields.',
+    defaultPoints: 10,
+  },
+  {
+    key: 'HABIT_COMPLETE',
+    label: 'Complete a daily habit',
+    description: 'Awarded once per completed daily habit.',
+    defaultPoints: 3,
+  },
+  {
+    key: 'ALL_DAILY_HABITS_COMPLETE',
+    label: 'Complete all daily habits',
+    description: 'Complete all your daily habits, with at least one habit.',
+    defaultPoints: 5,
+  },
+  {
+    key: 'WATER_GOAL_REACHED',
+    label: 'Reach water target',
+    description: 'A logged water reading reaches your current daily target.',
+    defaultPoints: 3,
+  },
+  {
+    key: 'SLEEP_GOAL_REACHED',
+    label: 'Reach sleep target',
+    description: 'A logged sleep duration reaches your current daily target.',
+    defaultPoints: 3,
+  },
+  {
+    key: 'ALCOHOL_STATUS_LOGGED',
+    label: 'Log alcohol status',
+    description: 'Explicitly record any alcohol status, including none.',
+    defaultPoints: 2,
+  },
+  {
+    key: 'CHECKIN_STREAK_7',
+    label: 'Seven-day check-in streak',
+    description: 'Reach exactly seven consecutive complete check-ins.',
+    defaultPoints: 20,
+  },
+  {
+    key: 'CHECKIN_STREAK_30',
+    label: 'Thirty-day check-in streak',
+    description: 'Reach exactly thirty consecutive complete check-ins.',
+    defaultPoints: 50,
+  },
+  {
+    key: 'WATER_LOGGED',
+    label: 'Log water intake',
+    description: 'Record a water amount, including an explicit zero.',
+    defaultPoints: 1,
+  },
+  {
+    key: 'SLEEP_LOGGED',
+    label: 'Log sleep duration',
+    description: 'Record sleep duration, including an explicit zero.',
+    defaultPoints: 1,
+  },
+  {
+    key: 'MOOD_LOGGED',
+    label: 'Log mood',
+    description: 'Record any mood on the five-point scale.',
+    defaultPoints: 1,
+  },
+  {
+    key: 'BOWEL_STATUS_LOGGED',
+    label: 'Log bowel movement',
+    description: 'Record any bowel movement status, including none.',
+    defaultPoints: 1,
+  },
+  {
+    key: 'MOOD_GOAL_REACHED',
+    label: 'Reach mood target',
+    description: 'Record a mood at or above your selected target.',
+    defaultPoints: 3,
+  },
+  {
+    key: 'BOWEL_GOAL_REACHED',
+    label: 'Reach bowel movement target',
+    description: 'Record the bowel movement status selected as your target.',
+    defaultPoints: 3,
+  },
+  {
+    key: 'MEAL_LOGGED',
+    label: 'Log a main meal',
+    description:
+      'Awarded once per breakfast, lunch, or dinner recorded as eaten or skipped.',
+    defaultPoints: 1,
+  },
+  {
+    key: 'MEAL_GOAL_REACHED',
+    label: 'Reach meal target',
+    description:
+      'Reach your meal count target with eaten main meals and snacks.',
+    defaultPoints: 3,
+  },
+  {
+    key: 'ALL_MAIN_MEALS_EATEN',
+    label: 'Eat all main meals',
+    description:
+      'Record breakfast, lunch, and dinner as eaten, without skipping a main meal.',
+    defaultPoints: 5,
+  },
+  {
+    key: 'ALCOHOL_FREE_STREAK_7',
+    label: 'Seven alcohol-free days',
+    description:
+      'Log none for alcohol on seven consecutive calendar days. Missing entries break the run.',
+    defaultPoints: 20,
+  },
+  {
+    key: 'ALCOHOL_FREE_STREAK_10',
+    label: 'Ten alcohol-free days',
+    description:
+      'Log none for alcohol on ten consecutive calendar days. Missing entries break the run.',
+    defaultPoints: 30,
+  },
+  {
+    key: 'ALCOHOL_FREE_STREAK_30',
+    label: 'Thirty alcohol-free days',
+    description:
+      'Log none for alcohol on thirty consecutive calendar days. Missing entries break the run.',
+    defaultPoints: 50,
+  },
+];

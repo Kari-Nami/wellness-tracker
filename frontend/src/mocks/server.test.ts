@@ -143,3 +143,59 @@ describe('demo API integration', () => {
     ).toBe(409);
   });
 });
+
+it('supports new target and logging awards alongside alcohol-only milestones without duplicating them', async () => {
+  await call('/auth/register', 'POST', {
+    email: 'scoring-demo@example.com',
+    password: 'samplepass',
+    displayName: 'Scoring',
+    goals: {
+      sleepHours: null,
+      waterMl: null,
+      mealsPerDay: 3,
+      targetMood: 4,
+      targetBowelStatus: 'normal',
+    },
+  });
+  for (let i = 2; i <= 8; i++)
+    await call('/check-ins', 'POST', {
+      localDate: `2026-10-0${i}`,
+      alcoholStatus: 'none',
+    });
+  const fields = {
+    waterMl: 0,
+    sleep: { durationMinutes: 0, quality: null },
+    mood: 5,
+    bowelStatus: 'normal',
+    meals: {
+      breakfast: { status: 'eaten' },
+      lunch: { status: 'skipped' },
+      dinner: { status: 'eaten' },
+      snacks: [{ description: 'Apple' }],
+    },
+  };
+  const first = successEnvelope(checkInDtoSchema).parse(
+    await (await call('/check-ins/2026-10-08', 'PATCH', fields)).json(),
+  ).data;
+  expect(first.pointsEarned).toBe(38);
+  expect(
+    first.pointAwards.find((a) => a.triggerKey === 'ALCOHOL_FREE_STREAK_7')
+      ?.points,
+  ).toBe(20);
+  expect(
+    first.pointAwards.some((a) => a.triggerKey === 'ALL_MAIN_MEALS_EATEN'),
+  ).toBe(false);
+  expect(
+    first.pointAwards.some((a) => a.triggerKey === 'WATER_GOAL_REACHED'),
+  ).toBe(false);
+  const again = (
+    await (await call('/check-ins/2026-10-08', 'PATCH', fields)).json()
+  ).data;
+  expect(again.pointAwards).toEqual(first.pointAwards);
+  const cleared = (
+    await (
+      await call('/check-ins/2026-10-08', 'PATCH', { alcoholStatus: null })
+    ).json()
+  ).data;
+  expect(cleared.pointsEarned).toBe(16);
+});

@@ -30,6 +30,7 @@ import {
   checkInPatchSchema,
   MAX_SLEEP_HOURS,
   MAX_WATER_ML,
+  type TriggerKey,
   type CheckInDto,
   type HabitDto,
   type CheckInPatch,
@@ -87,7 +88,7 @@ const bowelOptions = ['none', 'uncomfortable', 'normal', 'good'].map(
     label: titleCase(value),
   }),
 );
-const awardLabels: Record<string, string> = {
+const awardLabels: Record<TriggerKey, string> = {
   DAILY_CHECKIN_COMPLETE: 'Daily check-in',
   HABIT_COMPLETE: 'Daily habit',
   ALL_DAILY_HABITS_COMPLETE: 'All daily habits',
@@ -96,10 +97,22 @@ const awardLabels: Record<string, string> = {
   ALCOHOL_STATUS_LOGGED: 'Alcohol logged',
   CHECKIN_STREAK_7: '7-day streak',
   CHECKIN_STREAK_30: '30-day streak',
+  WATER_LOGGED: 'Water logged',
+  SLEEP_LOGGED: 'Sleep logged',
+  MOOD_LOGGED: 'Mood logged',
+  BOWEL_STATUS_LOGGED: 'Bowel movement logged',
+  MOOD_GOAL_REACHED: 'Mood target',
+  BOWEL_GOAL_REACHED: 'Bowel movement target',
+  MEAL_LOGGED: 'Log a main meal',
+  MEAL_GOAL_REACHED: 'Meal target',
+  ALL_MAIN_MEALS_EATEN: 'All main meals eaten',
+  ALCOHOL_FREE_STREAK_7: 'Seven alcohol-free days',
+  ALCOHOL_FREE_STREAK_10: 'Ten alcohol-free days',
+  ALCOHOL_FREE_STREAK_30: 'Thirty alcohol-free days',
 };
 function validationMessage(path: PropertyKey[]) {
   if (path[0] === 'waterMl')
-    return 'Water intake must be a whole number from 0 to 10,000 ml.';
+    return `Water intake must be a whole number from 0 to ${MAX_WATER_ML.toLocaleString()} ml.`;
   if (path[0] === 'sleep')
     return 'Sleep duration must be between 0 and 24 hours.';
   if (path[0] === 'meals' && path[1] === 'snacks')
@@ -743,7 +756,9 @@ export function CheckInEditor({
                               award.instanceKey ===
                               `HABIT_COMPLETE:${h.habitId}`,
                           )?.habitNameSnapshot ?? 'Daily habit')
-                        : awardLabels[award.triggerKey]}
+                        : award.triggerKey === 'MEAL_LOGGED'
+                          ? `${titleCase(award.instanceKey.split(':')[1] ?? 'Meal')} logged`
+                          : awardLabels[award.triggerKey]}
                     </span>
                     <strong>+{award.points}</strong>
                   </div>

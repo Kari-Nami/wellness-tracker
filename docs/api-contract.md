@@ -1,4 +1,4 @@
-# API contract v2
+# API contract v2.2
 
 This addendum resolves details left open in the supplied implementation guide. This contract retains the supplied documents' architecture and domain boundaries. These choices retain the frameworks, domain models, authentication design, and deployment topology. Review contract changes before updating their consumers.
 
@@ -62,9 +62,9 @@ Completion counts nine built-in fields: sleep duration, sleep quality, water, mo
 
 Profile PATCH may change displayName, leaderboardEnabled, or goals. All five target fields are nullable. A supplied goals object replaces the whole target object. Email, role, password, and ID are not patchable. Timezone is server-owned and fixed to Asia/Bangkok; no user timezone selection is offered. Existing localDate identities remain unchanged. Habit lists include non-deleted habits, including paused ones. Deleted habits are unavailable through GET and PATCH, cannot be restored, and are excluded from every list query. Internal deletion metadata and existing check-in snapshots remain for accurate history. Habit descriptions normalize to an empty string in DTOs. There is no count limit for active habits or submitted habit completions. Trigger keys are immutable after PointRule creation.
 
-The eight trigger keys and default values are in guide sections 25 and 26. Rules come from the database, not frontend constants. Award identity is triggerKey for ordinary daily awards and HABIT_COMPLETE:<habitId> for per-habit awards. Streak milestones fire at exactly day 7 and day 30 of each consecutive run. Zero active habits never qualifies for all-habits-complete. Explicit alcohol logging rewards any allowed status.
+The twenty supported trigger definitions and seed values are in `POINT_TRIGGER_DEFINITIONS` in the canonical contract. Rules come from the database, not frontend constants. Award identity is triggerKey for ordinary daily awards and HABIT_COMPLETE:<habitId> for per-habit awards and MEAL_LOGGED:<breakfast|lunch|dinner> for meal logging. Complete-check-in milestones fire at exactly day 7 and day 30. Alcohol-free milestones fire at exactly day 7, 10, and 30 of consecutive dates explicitly logged as alcohol none, even when the rest of the check-in is incomplete. Missing dates, null alcohol, and light/heavy/blackout entries break the alcohol-free run. Zero active habits never qualifies for all-habits-complete. Explicit alcohol logging rewards any allowed status.
 
-Reconcile the edited day's eligibility and awards on writes. Preserve qualifying existing awards at their historical point values even if their rule was disabled, deleted, or changed. Remove disqualified awards. Newly qualifying awards use the current enabled rule. Repeated saves must not duplicate awards. Historical edits/deletions reconcile affected streak milestone awards across history; do not reprice unrelated water/sleep/habit awards. Profile goal changes do not launch historical rescoring. A later direct edit uses current goals for that edited day. Scoring writes must be serialized per user in the single-server topology and protected against lost updates. Do not silently assume Mongo transactions work on a standalone MongoDB service.
+Reconcile the edited day's eligibility and awards on writes. Preserve qualifying existing awards at their historical point values even if their rule was disabled, deleted, or changed. Remove disqualified awards. Newly qualifying awards use the current enabled rule. Repeated saves must not duplicate awards. Historical edits/deletions reconcile affected check-in and alcohol-free milestone awards across history; do not reprice unrelated water/sleep/habit awards. Enabling or seeding a new rule does not mint awards on unrelated historical dates. Direct edits may earn currently enabled awards; milestone awards on other dates are added only when the edited or deleted date changes their consecutive run. Profile goal changes do not launch historical rescoring. A later direct edit uses current goals for that edited day. Scoring writes must be serialized per user in the single-server topology and protected against lost updates. Do not silently assume Mongo transactions work on a standalone MongoDB service.
 
 A current streak counts a completed run ending today; if today is incomplete/missing, it counts the run ending yesterday. Otherwise it is zero. Historical milestone evaluation uses the run ending on that record's date. Longest streak derives from completed date history.
 
@@ -100,3 +100,30 @@ Typed sleep readings are bounded to 0–24 hours and water readings to 0–12,00
 Numeric zero remains an explicit reading. Clear sleep resets both duration and quality to null; Clear water resets waterMl to null. These controls are available for current and historical check-ins. Targets can be cleared independently and never block logging. Registration presents all target fields without assigning defaults.
 
 Profile fields and targets autosave through a serialized queue. Successful writes update private query caches; pending autosaves finish before route navigation. Failed edits remain visible with an explicit retry and ordinary unsaved-change protection. Habits have their own route and navigation item; profile is available through the account menu.
+
+## Expanded scoring defaults
+
+All values remain editable by the administrator. Seed updates add missing definitions and preserve existing rule settings and earned history. Reads and profile changes never create awards.
+
+| Activity                         | Default points | Qualification                                                                  |
+| -------------------------------- | -------------- | ------------------------------------------------------------------------------ |
+| Complete check-in                | 10             | All nine fields logged                                                         |
+| Daily habit                      | 3 per habit    | Completed habit for the date                                                   |
+| All daily habits                 | 5              | At least one habit, every daily habit completed                                |
+| Water logged                     | 1              | Explicit amount, including zero                                                |
+| Water target                     | 3              | Selected target and logged amount at or above it                               |
+| Sleep logged                     | 1              | Explicit duration, including zero                                              |
+| Sleep target                     | 3              | Selected target and logged duration at or above it                             |
+| Mood logged                      | 1              | Explicit mood                                                                  |
+| Mood target                      | 3              | Mood at or above the selected target                                           |
+| Bowel status logged              | 1              | Explicit status, including none                                                |
+| Bowel target                     | 3              | Exact match with the selected status                                           |
+| Main meal logged                 | 1 per slot     | Breakfast, lunch, or dinner eaten or skipped                                   |
+| Meal target                      | 3              | At least one eaten meal; eaten main meals plus snacks reach the selected count |
+| All main meals eaten             | 5              | Breakfast, lunch, and dinner all eaten                                         |
+| Alcohol status logged            | 2              | Any explicit alcohol status                                                    |
+| Seven-day complete check-in run  | 20             | Exact run length 7                                                             |
+| Thirty-day complete check-in run | 50             | Exact run length 30                                                            |
+| Seven alcohol-free days          | 20             | Exact alcohol-free run length 7                                                |
+| Ten alcohol-free days            | 30             | Exact alcohol-free run length 10                                               |
+| Thirty alcohol-free days         | 50             | Exact alcohol-free run length 30                                               |
